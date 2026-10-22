@@ -29,6 +29,10 @@ object AppStrings {
     fun fullscreenBehavior(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "سلوك ملء الشاشة والمعاينة" else "Fullscreen & Zoom Behavior"
     fun storageDevices(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "وحدات التخزين المتصلة" else "Connected Storage Drives"
     fun about(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "حول التطبيق والدعم" else "About & Support"
+    fun updates(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "تحديثات التطبيق" else "App Updates"
+    fun checkForUpdates(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "البحث عن تحديثات" else "Check for Updates"
+    fun checkingUpdates(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "جاري التحقق من GitHub..." else "Checking GitHub..."
+    fun githubReleases(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "صفحة الإصدارات على GitHub" else "GitHub Releases Page"
 
     fun browseModeTitle(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "وضع التصفح كمعرض صور" else "Gallery Browse Mode"
     fun cleanModeTitle(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "وضع التنظيف والسحب" else "Clean & Keep Mode"

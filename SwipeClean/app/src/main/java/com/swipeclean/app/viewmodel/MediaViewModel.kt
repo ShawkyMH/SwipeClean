@@ -15,10 +15,21 @@ class MediaViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = MediaRepository(application)
     val settingsManager = SettingsManager(application)
+    private val updateManager = UpdateManager(application)
 
     val language: StateFlow<AppLanguage> = settingsManager.language
     val theme: StateFlow<AppTheme> = settingsManager.theme
     val fullscreenSwipeMode: StateFlow<FullscreenSwipeMode> = settingsManager.fullscreenSwipeMode
+
+    // App Update States (GitHub)
+    private val _updateInfo = MutableStateFlow<AppUpdateInfo?>(null)
+    val updateInfo: StateFlow<AppUpdateInfo?> = _updateInfo.asStateFlow()
+
+    private val _isCheckingUpdate = MutableStateFlow(false)
+    val isCheckingUpdate: StateFlow<Boolean> = _isCheckingUpdate.asStateFlow()
+
+    private val _updateCheckMessage = MutableStateFlow<String?>(null)
+    val updateCheckMessage: StateFlow<String?> = _updateCheckMessage.asStateFlow()
 
     private val _mediaItems = MutableStateFlow<List<MediaItem>>(emptyList())
     val mediaItems: StateFlow<List<MediaItem>> = _mediaItems.asStateFlow()
@@ -56,6 +67,11 @@ class MediaViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _trashSortOrder = MutableStateFlow(TrashSortOrder.RECENTLY_ADDED)
     val trashSortOrder: StateFlow<TrashSortOrder> = _trashSortOrder.asStateFlow()
+
+    init {
+        // Silently check for updates from GitHub in background on launch
+        checkForUpdates(isManual = false)
+    }
 
     private val _availableFolders = MutableStateFlow<List<String>>(emptyList())
     val availableFolders: StateFlow<List<String>> = _availableFolders.asStateFlow()
@@ -335,5 +351,45 @@ class MediaViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clearIntentSender() {
         _intentSenderForDelete.value = null
+    }
+
+    fun getInstalledVersionName(): String = updateManager.getInstalledVersionName()
+    fun getInstalledVersionCode(): Long = updateManager.getInstalledVersionCode()
+
+    fun checkForUpdates(isManual: Boolean = false) {
+        viewModelScope.launch {
+            _isCheckingUpdate.value = true
+            _updateCheckMessage.value = null
+            try {
+                val result = updateManager.checkUpdate()
+                result.onSuccess { update ->
+                    if (update != null) {
+                        _updateInfo.value = update
+                    } else if (isManual) {
+                        _updateCheckMessage.value = if (language.value == AppLanguage.ARABIC)
+                            "أنت تستخدم أحدث إصدار بالفعل! (v${getInstalledVersionName()})"
+                        else
+                            "You are already on the latest version! (v${getInstalledVersionName()})"
+                    }
+                }.onFailure {
+                    if (isManual) {
+                        _updateCheckMessage.value = if (language.value == AppLanguage.ARABIC)
+                            "تعذر الاتصال بـ GitHub للتحقق من التحديثات. تأكد من اتصالك بالإنترنت."
+                        else
+                            "Could not check updates on GitHub. Check your internet connection."
+                    }
+                }
+            } finally {
+                _isCheckingUpdate.value = false
+            }
+        }
+    }
+
+    fun dismissUpdateDialog() {
+        _updateInfo.value = null
+    }
+
+    fun clearUpdateMessage() {
+        _updateCheckMessage.value = null
     }
 }

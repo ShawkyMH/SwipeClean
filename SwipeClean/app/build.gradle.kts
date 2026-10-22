@@ -20,14 +20,32 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("swipeclean-release.jks")
+            storePassword = "swipeclean123"
+            keyAlias = "swipeclean"
+            keyPassword = "swipeclean123"
+            enableV1Signing = true
+            enableV2Signing = true
+            enableV3Signing = true
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
+    }
+
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8

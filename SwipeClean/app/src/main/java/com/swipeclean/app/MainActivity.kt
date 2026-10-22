@@ -1,7 +1,9 @@
 package com.swipeclean.app
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -21,6 +23,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -34,6 +37,7 @@ import androidx.navigation.compose.rememberNavController
 import com.swipeclean.app.data.AppLanguage
 import com.swipeclean.app.data.AppStrings
 import com.swipeclean.app.data.AppTheme
+import com.swipeclean.app.ui.components.UpdateDialog
 import com.swipeclean.app.ui.screens.GalleryScreen
 import com.swipeclean.app.ui.screens.SettingsScreen
 import com.swipeclean.app.ui.screens.SwipeScreen
@@ -90,6 +94,28 @@ fun SwipeCleanApp(viewModel: MediaViewModel = viewModel()) {
     val fullscreenSwipeMode by viewModel.fullscreenSwipeMode.collectAsState()
     val selectedStorageType by viewModel.selectedStorageType.collectAsState()
     val availableStorageTypes by viewModel.availableStorageTypes.collectAsState()
+
+    val updateInfo by viewModel.updateInfo.collectAsState()
+    val isCheckingUpdate by viewModel.isCheckingUpdate.collectAsState()
+    val updateCheckMessage by viewModel.updateCheckMessage.collectAsState()
+    val context = LocalContext.current
+
+    // Display In-App Update Dialog when update is found
+    if (updateInfo != null) {
+        UpdateDialog(
+            updateInfo = updateInfo!!,
+            currentLanguage = language,
+            onDismiss = { viewModel.dismissUpdateDialog() },
+            onUpdateClick = { url ->
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        )
+    }
 
     // Handle delete permission dialog for Android 10+ / 11+
     val deleteLauncher = rememberLauncherForActivityResult(
@@ -365,10 +391,16 @@ fun SwipeCleanApp(viewModel: MediaViewModel = viewModel()) {
                             currentTheme = theme,
                             currentFullscreenSwipeMode = fullscreenSwipeMode,
                             availableStorageTypes = availableStorageTypes,
+                            isCheckingUpdate = isCheckingUpdate,
+                            updateCheckMessage = updateCheckMessage,
                             onLanguageChanged = { viewModel.setLanguage(it) },
                             onThemeChanged = { viewModel.setTheme(it) },
                             onFullscreenSwipeModeChanged = { viewModel.setFullscreenSwipeMode(it) },
-                            onNavigateBack = { navController.popBackStack() }
+                            onCheckUpdates = { viewModel.checkForUpdates(isManual = true) },
+                            onNavigateBack = {
+                                viewModel.clearUpdateMessage()
+                                navController.popBackStack()
+                            }
                         )
                     }
                 }

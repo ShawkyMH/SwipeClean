@@ -1,0 +1,10 @@
+{
+  "versionCode": 2,
+  "versionName": "1.1.0",
+  "isMandatory": false,
+  "titleAr": "تحديث جديد متوفر 🚀",
+  "titleEn": "New Update Available 🚀",
+  "changelogAr": "• إضافة شريط تنقل سفلي جديد (Bottom Navigation Bar) حسب معايير Apple HIG\n• فحص تلقائي للتحديثات عبر GitHub والتثبيت المباشر\n• تحسين درجات التباين للأزرار والشارات (Accessibility WCAG AA)\n• حل مشكلة الصوت المزدوج وإيقاف الفيديوهات بالخلفية تلقائياً\n• سلاسة وتحكم كامل في شريط التمرير الزمني للفيديوهات",
+  "changelogEn": "• New persistent Bottom Navigation Bar following Apple HIG\n• In-app auto-update checker via GitHub\n• Enhanced accessible color contrast (WCAG AA compliant)\n• Fixed dual-audio playback and background pause\n• Live-seek slider dragging and smoother video controls",
+  "downloadUrl": "https://github.com/ShawkyMH/SwipeClean/releases/latest/download/SwipeClean.apk"
+}
