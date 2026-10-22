@@ -50,6 +50,7 @@ import com.swipeclean.app.data.MediaItem
 import com.swipeclean.app.data.MediaType
 import com.swipeclean.app.ui.theme.DeleteRed
 import com.swipeclean.app.ui.theme.KeepGreen
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
@@ -89,6 +90,12 @@ fun FullscreenMediaDialog(
     var isMuted by remember(currentItem.id) { mutableStateOf(false) }
     var isPlaying by remember(currentItem.id) { mutableStateOf(true) }
 
+    // Video progress & duration scrubber states
+    var currentPositionMs by remember(currentItem.id) { mutableLongStateOf(0L) }
+    var durationMs by remember(currentItem.id) { mutableLongStateOf(0L) }
+    var isScrubbing by remember(currentItem.id) { mutableStateOf(false) }
+    var scrubPositionMs by remember(currentItem.id) { mutableLongStateOf(0L) }
+
     val exoPlayer = remember(currentItem.id) {
         if (currentItem.type == MediaType.VIDEO) {
             ExoPlayer.Builder(context).build().apply {
@@ -105,6 +112,21 @@ fun FullscreenMediaDialog(
     DisposableEffect(currentItem.id) {
         onDispose {
             exoPlayer?.release()
+        }
+    }
+
+    // Continuously sync video progress slider with ExoPlayer current position
+    LaunchedEffect(currentItem.id, exoPlayer, isPlaying) {
+        val player = exoPlayer ?: return@LaunchedEffect
+        while (true) {
+            if (!isScrubbing) {
+                currentPositionMs = player.currentPosition.coerceAtLeast(0L)
+                val d = player.duration
+                if (d > 0L) {
+                    durationMs = d
+                }
+            }
+            delay(120L)
         }
     }
 
@@ -203,35 +225,31 @@ fun FullscreenMediaDialog(
                         }
                     }
                     .pointerInput(currentItem.id) {
-                        // Pinch to zoom and pan for photos
-                        if (currentItem.type == MediaType.IMAGE) {
-                            detectTransformGestures { _, pan, zoom, _ ->
-                                scale = (scale * zoom).coerceIn(1f, 5f)
-                                if (scale > 1.05f) {
-                                    panOffsetX += pan.x
-                                    panOffsetY += pan.y
-                                } else {
-                                    panOffsetX = 0f
-                                    panOffsetY = 0f
-                                }
+                        // Pinch to zoom and pan for photos and videos
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            scale = (scale * zoom).coerceIn(1f, 5f)
+                            if (scale > 1.05f) {
+                                panOffsetX += pan.x
+                                panOffsetY += pan.y
+                            } else {
+                                panOffsetX = 0f
+                                panOffsetY = 0f
                             }
                         }
                     }
                     .pointerInput(currentItem.id) {
-                        // Double tap zoom
-                        if (currentItem.type == MediaType.IMAGE) {
-                            detectTapGestures(
-                                onDoubleTap = {
-                                    if (scale > 1.2f) {
-                                        scale = 1f
-                                        panOffsetX = 0f
-                                        panOffsetY = 0f
-                                    } else {
-                                        scale = 2.5f
-                                    }
+                        // Double tap zoom for photos and videos
+                        detectTapGestures(
+                            onDoubleTap = {
+                                if (scale > 1.2f) {
+                                    scale = 1f
+                                    panOffsetX = 0f
+                                    panOffsetY = 0f
+                                } else {
+                                    scale = 2.5f
                                 }
-                            )
-                        }
+                            }
+                        )
                     },
                 contentAlignment = Alignment.Center
             ) {
@@ -248,7 +266,14 @@ fun FullscreenMediaDialog(
                                 setOnTouchListener { _, _ -> false }
                             }
                         },
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .graphicsLayer(
+                                scaleX = scale,
+                                scaleY = scale,
+                                translationX = panOffsetX,
+                                translationY = panOffsetY
+                            )
                     )
                 } else {
                     AsyncImage(
@@ -372,7 +397,7 @@ fun FullscreenMediaDialog(
 
                 // Action buttons (Reset zoom or video controls)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (currentItem.type == MediaType.IMAGE && scale > 1.1f) {
+                    if (scale > 1.1f) {
                         IconButton(
                             onClick = {
                                 scale = 1f
@@ -413,67 +438,135 @@ fun FullscreenMediaDialog(
                 }
             }
 
-            // Bottom Navigation & Info Bar
-            Row(
+            // Bottom Navigation & Video Controls Container
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
                     .background(
                         Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.9f))
+                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.95f))
                         )
                     )
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(bottom = 12.dp)
             ) {
-                // Previous button
-                IconButton(
-                    onClick = { if (activeIndex > 0) activeIndex-- },
-                    enabled = activeIndex > 0,
-                    colors = IconButtonDefaults.iconButtonColors(containerColor = Color.White.copy(alpha = 0.15f))
-                ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "السابق",
-                        tint = if (activeIndex > 0) Color.White else Color.Gray
-                    )
+                // Video Progress Slider and timestamps (Only displayed for videos)
+                if (currentItem.type == MediaType.VIDEO && exoPlayer != null) {
+                    val displayPosition = if (isScrubbing) scrubPositionMs else currentPositionMs
+                    val totalDuration = if (durationMs > 0L) durationMs else currentItem.duration.coerceAtLeast(1L)
+                    val sliderProgress = (displayPosition.toFloat() / totalDuration.toFloat()).coerceIn(0f, 1f)
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 2.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = formatVideoTime(displayPosition),
+                                color = Color.White,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = formatVideoTime(totalDuration),
+                                color = Color.White.copy(alpha = 0.7f),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Normal
+                            )
+                        }
+
+                        Slider(
+                            value = sliderProgress,
+                            onValueChange = { newProgress ->
+                                isScrubbing = true
+                                scrubPositionMs = (newProgress * totalDuration).toLong()
+                            },
+                            onValueChangeFinished = {
+                                exoPlayer.seekTo(scrubPositionMs)
+                                currentPositionMs = scrubPositionMs
+                                isScrubbing = false
+                            },
+                            colors = SliderDefaults.colors(
+                                thumbColor = Color(0xFFA855F7),
+                                activeTrackColor = Color(0xFFA855F7),
+                                inactiveTrackColor = Color.White.copy(alpha = 0.25f)
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(26.dp)
+                        )
+                    }
                 }
 
-                // File metadata
-                Column(
-                    modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                // Row with Previous, Metadata, Next
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = currentItem.name,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = "${if (currentItem.type == MediaType.VIDEO) "🎬 فيديو • " else "📷 صورة • "}${formatFileSize(currentItem.size)}${if (currentItem.storageVolumeName.isNotBlank()) " • 💾 ${currentItem.storageVolumeName}" else ""}",
-                        color = Color.White.copy(alpha = 0.75f),
-                        fontSize = 11.sp
-                    )
-                }
+                    // Previous button
+                    IconButton(
+                        onClick = { if (activeIndex > 0) activeIndex-- },
+                        enabled = activeIndex > 0,
+                        colors = IconButtonDefaults.iconButtonColors(containerColor = Color.White.copy(alpha = 0.15f))
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "السابق",
+                            tint = if (activeIndex > 0) Color.White else Color.Gray
+                        )
+                    }
 
-                // Next button
-                IconButton(
-                    onClick = { if (activeIndex < mediaItems.size - 1) activeIndex++ },
-                    enabled = activeIndex < mediaItems.size - 1,
-                    colors = IconButtonDefaults.iconButtonColors(containerColor = Color.White.copy(alpha = 0.15f))
-                ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "التالي",
-                        tint = if (activeIndex < mediaItems.size - 1) Color.White else Color.Gray
-                    )
+                    // File metadata
+                    Column(
+                        modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = currentItem.name,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "${if (currentItem.type == MediaType.VIDEO) "🎬 فيديو • " else "📷 صورة • "}${formatFileSize(currentItem.size)}${if (currentItem.storageVolumeName.isNotBlank()) " • 💾 ${currentItem.storageVolumeName}" else ""}",
+                            color = Color.White.copy(alpha = 0.75f),
+                            fontSize = 11.sp
+                        )
+                    }
+
+                    // Next button
+                    IconButton(
+                        onClick = { if (activeIndex < mediaItems.size - 1) activeIndex++ },
+                        enabled = activeIndex < mediaItems.size - 1,
+                        colors = IconButtonDefaults.iconButtonColors(containerColor = Color.White.copy(alpha = 0.15f))
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = "التالي",
+                            tint = if (activeIndex < mediaItems.size - 1) Color.White else Color.Gray
+                        )
+                    }
                 }
             }
         }
     }
+}
+
+// Format milliseconds to mm:ss timestamp display for video slider
+fun formatVideoTime(ms: Long): String {
+    val totalSec = (ms / 1000).coerceAtLeast(0L)
+    val minutes = totalSec / 60
+    val seconds = totalSec % 60
+    return String.format("%02d:%02d", minutes, seconds)
 }

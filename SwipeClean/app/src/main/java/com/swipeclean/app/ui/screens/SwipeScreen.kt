@@ -416,6 +416,7 @@ fun SwipeScreen(
                         key(currentItem.id) {
                             SwipeCard(
                                 mediaItem = currentItem,
+                                isPaused = showFullscreenDialog, // Pause background video when fullscreen dialog is open to prevent duplicate audio
                                 onSwipeRight = onSwipeRight,
                                 onSwipeLeft = onSwipeLeft,
                                 onOpenFullscreen = { showFullscreenDialog = true },

@@ -464,13 +464,22 @@
         </div>
         <div style="flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;" id="inspectViewport">
           <img id="inspectImg" style="max-width:100%;max-height:100%;object-fit:contain;transition:transform 0.25s ease;" src="">
-          <video id="inspectVideo" style="max-width:100%;max-height:100%;object-fit:contain;display:none;transition:transform 0.25s ease;" controls playsinline autoplay loop></video>
+          <video id="inspectVideo" style="max-width:100%;max-height:100%;object-fit:contain;display:none;transition:transform 0.25s ease;" playsinline autoplay loop></video>
           
           <!-- Prev / Next Overlays for gallery browsing -->
           <button id="inspectPrevBtn" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:42px;height:42px;font-size:1.2rem;cursor:pointer;z-index:10;">‹</button>
           <button id="inspectNextBtn" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:42px;height:42px;font-size:1.2rem;cursor:pointer;z-index:10;">›</button>
           
-          <div id="inspectModeBadge" style="position:absolute;bottom:20px;background:rgba(15,23,42,0.85);color:#38bdf8;padding:6px 14px;border-radius:20px;font-size:0.75rem;border:1px solid rgba(56,189,248,0.3);z-index:10;pointer-events:none;">
+          <!-- Fullscreen Video Scrubber / Slider Bar -->
+          <div id="inspectVideoBar" style="display:none;position:absolute;bottom:60px;left:18px;right:18px;background:rgba(15,23,42,0.85);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:8px 14px;z-index:20;flex-direction:column;gap:4px;">
+            <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:#cbd5e1;font-weight:600;">
+              <span id="inspectVideoCurrentTime">00:00</span>
+              <span id="inspectVideoDuration">00:00</span>
+            </div>
+            <input type="range" id="inspectVideoSeekSlider" min="0" max="1000" value="0" style="width:100%;accent-color:#a855f7;cursor:pointer;height:6px;">
+          </div>
+
+          <div id="inspectModeBadge" style="position:absolute;bottom:16px;background:rgba(15,23,42,0.85);color:#38bdf8;padding:6px 14px;border-radius:20px;font-size:0.75rem;border:1px solid rgba(56,189,248,0.3);z-index:10;pointer-events:none;">
             🖼️ نمط المعرض العادي: السحب يقلب الملفات دون حذف
           </div>
         </div>
@@ -917,7 +926,51 @@
     const inspectVideo = document.getElementById('inspectVideo');
     const inspectTitle = document.getElementById('inspectTitle');
     const inspectModeBadge = document.getElementById('inspectModeBadge');
+    const inspectVideoBar = document.getElementById('inspectVideoBar');
+    const inspectVideoSeekSlider = document.getElementById('inspectVideoSeekSlider');
+    const inspectVideoCurrentTime = document.getElementById('inspectVideoCurrentTime');
+    const inspectVideoDuration = document.getElementById('inspectVideoDuration');
     let isInspectorZoomed = false;
+    let isUserSeeking = false;
+
+    // Helper: format seconds to mm:ss timestamp
+    function formatVideoSeconds(sec) {
+      if (isNaN(sec) || sec < 0) return "00:00";
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    // Sync fullscreen video slider with playback position
+    inspectVideo.addEventListener('timeupdate', () => {
+      if (!isUserSeeking && inspectVideo.duration) {
+        const progress = (inspectVideo.currentTime / inspectVideo.duration) * 1000;
+        inspectVideoSeekSlider.value = progress;
+        inspectVideoCurrentTime.textContent = formatVideoSeconds(inspectVideo.currentTime);
+        inspectVideoDuration.textContent = formatVideoSeconds(inspectVideo.duration);
+      }
+    });
+
+    inspectVideo.addEventListener('loadedmetadata', () => {
+      inspectVideoDuration.textContent = formatVideoSeconds(inspectVideo.duration);
+      inspectVideoCurrentTime.textContent = formatVideoSeconds(inspectVideo.currentTime);
+    });
+
+    // Scrubbing on the slider
+    inspectVideoSeekSlider.addEventListener('input', () => {
+      isUserSeeking = true;
+      if (inspectVideo.duration) {
+        const seekTime = (inspectVideoSeekSlider.value / 1000) * inspectVideo.duration;
+        inspectVideoCurrentTime.textContent = formatVideoSeconds(seekTime);
+      }
+    });
+
+    inspectVideoSeekSlider.addEventListener('change', () => {
+      if (inspectVideo.duration) {
+        inspectVideo.currentTime = (inspectVideoSeekSlider.value / 1000) * inspectVideo.duration;
+      }
+      isUserSeeking = false;
+    });
 
     function renderInspectorItem() {
       const visible = getVisibleList();
@@ -937,11 +990,13 @@
       if (item.type === 'VIDEO') {
         inspectImg.style.display = 'none';
         inspectVideo.style.display = 'block';
+        inspectVideoBar.style.display = 'flex';
         inspectVideo.src = item.url;
         inspectVideo.play().catch(() => {});
       } else {
         inspectVideo.pause();
         inspectVideo.style.display = 'none';
+        inspectVideoBar.style.display = 'none';
         inspectImg.style.display = 'block';
         inspectImg.src = item.url;
       }
@@ -958,6 +1013,10 @@
     }
 
     window.openMediaInspector = function(item) {
+      // 1. Pause background card video to prevent duplicate audio streams playing together
+      const bgVideos = cardContainer.querySelectorAll('video');
+      bgVideos.forEach(v => v.pause());
+
       const visible = getVisibleList();
       const idx = visible.findIndex(x => x.id === item.id);
       inspectIndex = idx !== -1 ? idx : 0;
@@ -965,10 +1024,17 @@
       photoInspectModal.classList.add('open');
     };
 
-    document.getElementById('closeInspectModalBtn').addEventListener('click', () => {
+    function closeInspector() {
       inspectVideo.pause();
       photoInspectModal.classList.remove('open');
-    });
+      // Resume playing background video if not muted
+      const bgVideos = cardContainer.querySelectorAll('video');
+      bgVideos.forEach(v => {
+        if (!isMuted) v.play().catch(() => {});
+      });
+    }
+
+    document.getElementById('closeInspectModalBtn').addEventListener('click', closeInspector);
 
     document.getElementById('zoomInspectToggleBtn').addEventListener('click', () => {
       isInspectorZoomed = !isInspectorZoomed;
@@ -1037,8 +1103,7 @@
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextInspectorItem();
       else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevInspectorItem();
       else if (e.key === 'Escape') {
-        inspectVideo.pause();
-        photoInspectModal.classList.remove('open');
+        closeInspector();
       }
     });
 

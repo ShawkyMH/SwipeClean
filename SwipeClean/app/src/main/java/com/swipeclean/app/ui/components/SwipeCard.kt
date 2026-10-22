@@ -55,6 +55,7 @@ import kotlin.math.roundToInt
 @Composable
 fun SwipeCard(
     mediaItem: MediaItem,
+    isPaused: Boolean = false, // True when fullscreen dialog is active to pause background playback and mute
     onSwipeRight: () -> Unit,
     onSwipeLeft: () -> Unit,
     onOpenFullscreen: () -> Unit,
@@ -91,15 +92,21 @@ fun SwipeCard(
         }
     }
 
-    LaunchedEffect(isMuted) {
-        exoPlayer?.volume = if (isMuted) 0f else 1f
+    // Audio volume control: automatically mute background player when fullscreen dialog is open
+    LaunchedEffect(isPaused, isMuted) {
+        exoPlayer?.volume = if (isPaused || isMuted) 0f else 1f
     }
 
-    LaunchedEffect(isPlaying) {
-        if (isPlaying) {
-            exoPlayer?.play()
-        } else {
+    // Playback state control: pause background player immediately when fullscreen preview is active
+    LaunchedEffect(isPaused, isPlaying) {
+        if (isPaused) {
             exoPlayer?.pause()
+        } else {
+            if (isPlaying) {
+                exoPlayer?.play()
+            } else {
+                exoPlayer?.pause()
+            }
         }
     }
 
