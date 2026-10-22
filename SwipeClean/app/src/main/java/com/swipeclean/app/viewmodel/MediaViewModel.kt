@@ -365,6 +365,7 @@ class MediaViewModel(application: Application) : AndroidViewModel(application) {
                 result.onSuccess { update ->
                     if (update != null) {
                         _updateInfo.value = update
+                        updateManager.showUpdateNotification(update, language.value)
                     } else if (isManual) {
                         _updateCheckMessage.value = if (language.value == AppLanguage.ARABIC)
                             "أنت تستخدم أحدث إصدار بالفعل! (v${getInstalledVersionName()})"

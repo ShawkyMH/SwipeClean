@@ -150,10 +150,17 @@ fun SwipeCleanApp(viewModel: MediaViewModel = viewModel()) {
     }
 
     LaunchedEffect(Unit) {
+        // Automatically check for updates on startup so user is notified immediately
+        kotlinx.coroutines.delay(1000)
+        viewModel.checkForUpdates(isManual = false)
+    }
+
+    LaunchedEffect(Unit) {
         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             arrayOf(
                 Manifest.permission.READ_MEDIA_IMAGES,
-                Manifest.permission.READ_MEDIA_VIDEO
+                Manifest.permission.READ_MEDIA_VIDEO,
+                Manifest.permission.POST_NOTIFICATIONS
             )
         } else {
             arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -210,7 +217,8 @@ fun SwipeCleanApp(viewModel: MediaViewModel = viewModel()) {
                         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             arrayOf(
                                 Manifest.permission.READ_MEDIA_IMAGES,
-                                Manifest.permission.READ_MEDIA_VIDEO
+                                Manifest.permission.READ_MEDIA_VIDEO,
+                                Manifest.permission.POST_NOTIFICATIONS
                             )
                         } else {
                             arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -332,6 +340,7 @@ fun SwipeCleanApp(viewModel: MediaViewModel = viewModel()) {
                             availableStorageTypes = availableStorageTypes,
                             currentLanguage = language,
                             fullscreenSwipeMode = fullscreenSwipeMode,
+                            hasUpdate = (updateInfo != null),
                             onSwipeRight = { viewModel.keepCurrentItem() },
                             onSwipeLeft = { viewModel.moveCurrentItemToTrash() },
                             onKeepItem = { viewModel.keepItem(it) },

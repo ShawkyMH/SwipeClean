@@ -37,6 +37,7 @@ fun SwipeScreen(
     availableStorageTypes: List<StorageTypeInfo>,
     currentLanguage: AppLanguage,
     fullscreenSwipeMode: FullscreenSwipeMode,
+    hasUpdate: Boolean = false,
     onSwipeRight: () -> Unit,
     onSwipeLeft: () -> Unit,
     onKeepItem: (MediaItem) -> Unit,
@@ -84,12 +85,25 @@ fun SwipeScreen(
                     )
                 },
                 actions = {
-                    // Settings Button
+                    // Settings Button with optional update badge
                     IconButton(onClick = onNavigateToSettings) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = AppStrings.settings(currentLanguage)
-                        )
+                        BadgedBox(
+                            badge = {
+                                if (hasUpdate) {
+                                    Badge(
+                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        contentColor = Color.White
+                                    ) {
+                                        Text("!", fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = AppStrings.settings(currentLanguage)
+                            )
+                        }
                     }
 
                     // Feedback / WhatsApp Button
