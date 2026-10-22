@@ -46,7 +46,10 @@ fun SettingsScreen(
     var showFeedbackDialog by remember { mutableStateOf(false) }
 
     if (showFeedbackDialog) {
-        FeedbackDialog(onDismiss = { showFeedbackDialog = false })
+        FeedbackDialog(
+            currentLanguage = currentLanguage,
+            onDismiss = { showFeedbackDialog = false }
+        )
     }
 
     Scaffold(
@@ -60,7 +63,7 @@ fun SettingsScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "رجوع")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = AppStrings.back(currentLanguage))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -244,10 +247,17 @@ fun SettingsScreen(
                                             fontSize = 13.sp
                                         )
                                         Text(
-                                            text = if (info.type == StorageType.INTERNAL) "الذاكرة المدمجة"
-                                            else if (info.type == StorageType.SD_CARD) "بطاقة خارجية MicroSD"
-                                            else if (info.type == StorageType.USB_DRIVE) "متصل عبر USB OTG"
-                                            else "جميع المصادر",
+                                            text = if (currentLanguage == AppLanguage.ARABIC) {
+                                                if (info.type == StorageType.INTERNAL) "الذاكرة المدمجة"
+                                                else if (info.type == StorageType.SD_CARD) "بطاقة خارجية MicroSD"
+                                                else if (info.type == StorageType.USB_DRIVE) "متصل عبر USB OTG"
+                                                else "جميع المصادر"
+                                            } else {
+                                                if (info.type == StorageType.INTERNAL) "Built-in Device Storage"
+                                                else if (info.type == StorageType.SD_CARD) "External MicroSD Card"
+                                                else if (info.type == StorageType.USB_DRIVE) "Connected via USB OTG"
+                                                else "All Storage Sources"
+                                            },
                                             fontSize = 11.sp,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -258,7 +268,7 @@ fun SettingsScreen(
                                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                                 ) {
                                     Text(
-                                        text = "${info.count} عنصر",
+                                        text = if (currentLanguage == AppLanguage.ARABIC) "${info.count} عنصر" else "${info.count} items",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 11.sp,
                                         color = MaterialTheme.colorScheme.primary,
@@ -399,7 +409,10 @@ fun SettingsScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "الإصدار (Version):", fontSize = 13.sp)
+                        Text(
+                            text = if (currentLanguage == AppLanguage.ARABIC) "الإصدار:" else "Version:",
+                            fontSize = 13.sp
+                        )
                         Text(text = "${AppConfig.APP_NAME} v${AppConfig.APP_VERSION}", fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     }
 

@@ -471,9 +471,9 @@
 
       <!-- Stats -->
       <div class="stats-bar">
-        <div class="stat-box"><span class="stat-badge badge-keep" id="keptCount">0</span> محفوظ</div>
-        <div class="stat-box"><span class="stat-badge badge-del" id="delCount">0</span> في السلة</div>
-        <div class="stat-box"><span class="stat-badge badge-remain" id="remainCount">0</span> متبقي</div>
+        <div class="stat-box"><span class="stat-badge badge-keep" id="keptCount">0</span> <span id="keptLabel">محفوظ</span></div>
+        <div class="stat-box"><span class="stat-badge badge-del" id="delCount">0</span> <span id="trashLabel">في السلة</span></div>
+        <div class="stat-box"><span class="stat-badge badge-remain" id="remainCount">0</span> <span id="remainLabel">متبقي</span></div>
       </div>
 
       <!-- Main card stage -->
@@ -703,6 +703,7 @@
     let currentStorage = 'ALL';
     let currentSort = 'NEWEST';
     let currentFsMode = 'BROWSE'; // 'BROWSE' (default) or 'CLEAN'
+    let currentAppLang = 'ar';
     let isFitMode = true;
     let isMuted = false;
     let currentCardIndex = 0;
@@ -755,12 +756,13 @@
       const visible = getVisibleList();
 
       if (visible.length === 0 || currentCardIndex >= visible.length) {
+        const isAr = (currentAppLang === 'ar');
         cardContainer.innerHTML = `
           <div style="text-align:center;padding:24px;">
             <div style="font-size:3.5rem;margin-bottom:12px;">🎉</div>
-            <h3 style="font-weight:800;">تم فحص كل العناصر!</h3>
-            <p style="color:#94a3b8;font-size:0.85rem;margin-top:6px;">لديك (${trashList.length}) عناصر في السلة.</p>
-            ${trashList.length > 0 ? '<button onclick="openTrash()" style="margin-top:16px;background:#ef4444;color:#fff;border:none;border-radius:12px;padding:8px 18px;font-weight:700;cursor:pointer;font-family:inherit;">فتح السلة وتأكيد الحذف 🗑️</button>' : ''}
+            <h3 style="font-weight:800;">${isAr ? 'تم فحص كل العناصر!' : 'All items reviewed!'}</h3>
+            <p style="color:#94a3b8;font-size:0.85rem;margin-top:6px;">${isAr ? `لديك (${trashList.length}) عناصر في السلة.` : `You have (${trashList.length}) items in trash.`}</p>
+            ${trashList.length > 0 ? `<button onclick="openTrash()" style="margin-top:16px;background:#ef4444;color:#fff;border:none;border-radius:12px;padding:8px 18px;font-weight:700;cursor:pointer;font-family:inherit;">${isAr ? 'فتح السلة وتأكيد الحذف 🗑️' : 'Open Trash & Confirm Delete 🗑️'}</button>` : ''}
           </div>
         `;
         updateStats();
@@ -801,17 +803,22 @@
         `;
       }
 
-      const storageIcon = item.storage === 'INTERNAL' ? '📱 ذاكرة الهاتف' : item.storage === 'SD_CARD' ? '💾 كارت SD' : '🔌 فلاشة USB';
+      const isAr = (currentAppLang === 'ar');
+      const storageIcon = item.storage === 'INTERNAL'
+        ? (isAr ? '📱 ذاكرة الهاتف' : '📱 Internal')
+        : item.storage === 'SD_CARD'
+          ? (isAr ? '💾 كارت SD' : '💾 SD Card')
+          : (isAr ? '🔌 فلاشة USB' : '🔌 USB Drive');
 
       card.innerHTML = `
         ${topBarHtml}
-        <div class="card-badge badge-keep-float">احتفظ ✅</div>
-        <div class="card-badge badge-del-float">إلى السلة 🗑️</div>
+        <div class="card-badge badge-keep-float">${isAr ? 'احتفظ ✅' : 'Keep ✅'}</div>
+        <div class="card-badge badge-del-float">${isAr ? 'إلى السلة 🗑️' : 'To Trash 🗑️'}</div>
         ${mediaHtml}
         <div class="card-meta">
           <div style="font-weight:700;font-size:0.95rem;">${item.name}</div>
           <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.75rem;color:#94a3b8;margin-top:2px;">
-            <span>${item.type === 'VIDEO' ? '🎬 فيديو' : '📷 صورة'} • <span style="color:#38bdf8;font-weight:600;">${storageIcon}</span></span>
+            <span>${item.type === 'VIDEO' ? (isAr ? '🎬 فيديو' : '🎬 Video') : (isAr ? '📷 صورة' : '📷 Photo')} • <span style="color:#38bdf8;font-weight:600;">${storageIcon}</span></span>
             <span>${item.size}</span>
           </div>
         </div>
@@ -1318,14 +1325,112 @@
     };
 
     window.setAppLang = function(lang) {
+      currentAppLang = lang;
       document.querySelectorAll('#langArBtn, #langEnBtn').forEach(b => b.classList.remove('active'));
-      if (lang === 'ar') {
+      const isAr = (lang === 'ar');
+      if (isAr) {
         document.getElementById('langArBtn').classList.add('active');
         document.body.setAttribute('dir', 'rtl');
       } else {
         document.getElementById('langEnBtn').classList.add('active');
         document.body.setAttribute('dir', 'ltr');
       }
+
+      // Update Bottom Tabs
+      const tabCleanLabel = document.querySelector('#tabClean .tab-label');
+      if (tabCleanLabel) tabCleanLabel.textContent = isAr ? 'تنظيف' : 'Clean';
+      const tabGalleryLabel = document.querySelector('#tabGallery .tab-label');
+      if (tabGalleryLabel) tabGalleryLabel.textContent = isAr ? 'المعرض' : 'Gallery';
+      const tabTrashLabel = document.querySelector('#tabTrash .tab-label');
+      if (tabTrashLabel) tabTrashLabel.textContent = isAr ? 'السلة' : 'Trash';
+
+      // Update Stats Bar Labels
+      const keptLbl = document.getElementById('keptLabel');
+      if (keptLbl) keptLbl.textContent = isAr ? 'محفوظ' : 'Kept';
+      const trashLbl = document.getElementById('trashLabel');
+      if (trashLbl) trashLbl.textContent = isAr ? 'في السلة' : 'In Trash';
+      const remainLbl = document.getElementById('remainLabel');
+      if (remainLbl) remainLbl.textContent = isAr ? 'متبقي' : 'Remaining';
+
+      // Update Filter Chips
+      const fAll = document.querySelector('[data-filter="ALL"]');
+      if (fAll) fAll.textContent = isAr ? 'الكل' : 'All';
+      const fImg = document.querySelector('[data-filter="IMAGE"]');
+      if (fImg) fImg.textContent = isAr ? '📷 صور' : '📷 Photos';
+      const fVid = document.querySelector('[data-filter="VIDEO"]');
+      if (fVid) fVid.textContent = isAr ? '🎬 فيديو' : '🎬 Videos';
+
+      // Update Storage Select Options
+      const storageSelect = document.getElementById('storageSourceSelect');
+      if (storageSelect) {
+        storageSelect.options[0].textContent = isAr ? '📁 كل التخزين' : '📁 All Storage';
+        storageSelect.options[1].textContent = isAr ? '📱 ذاكرة الهاتف' : '📱 Internal Storage';
+        storageSelect.options[2].textContent = isAr ? '💾 كارت ميموري SD' : '💾 SD Card';
+        storageSelect.options[3].textContent = isAr ? '🔌 فلاشة USB' : '🔌 USB Drive';
+      }
+
+      // Update Sort Select Options
+      const sortSelect = document.getElementById('sortOrderSelect');
+      if (sortSelect) {
+        sortSelect.options[0].textContent = isAr ? 'الأحدث 🕒' : 'Newest 🕒';
+        sortSelect.options[1].textContent = isAr ? 'الأكبر حجماً 🚀' : 'Largest 🚀';
+        sortSelect.options[2].textContent = isAr ? 'الأقدم ⏳' : 'Oldest ⏳';
+        sortSelect.options[3].textContent = isAr ? 'الأصغر 📦' : 'Smallest 📦';
+      }
+
+      // Update Trash Sort Options & Empty Button
+      const trashSort = document.getElementById('trashSortSelect');
+      if (trashSort) {
+        trashSort.options[0].textContent = isAr ? 'أحدث ما أُضيف للسلة 🕒' : 'Recently Added 🕒';
+        trashSort.options[1].textContent = isAr ? 'أقدم ما أُضيف للسلة ⏳' : 'Oldest Added ⏳';
+        trashSort.options[2].textContent = isAr ? 'الأكبر حجماً 🚀' : 'Largest 🚀';
+        trashSort.options[3].textContent = isAr ? 'الأصغر حجماً 📦' : 'Smallest 📦';
+      }
+      const emptyTrashBtn = document.getElementById('confirmEmptyTrashBtn');
+      if (emptyTrashBtn) {
+        emptyTrashBtn.textContent = isAr ? '🗑️ إفراغ السلة وحذف الكل نهائياً' : '🗑️ Empty Trash & Delete All';
+      }
+
+      // Update Modal Titles & Buttons
+      const openSettingsBtn = document.getElementById('openSettingsBtn');
+      if (openSettingsBtn) openSettingsBtn.title = isAr ? 'الإعدادات' : 'Settings';
+      const openFeedbackBtn = document.getElementById('openFeedbackBtn');
+      if (openFeedbackBtn) openFeedbackBtn.title = isAr ? 'تواصل واقتراحات عبر واتساب' : 'Feedback & Support via WhatsApp';
+
+      const settingsTitle = document.querySelector('#settingsModal .app-title');
+      if (settingsTitle) settingsTitle.textContent = isAr ? 'الإعدادات ⚙️' : 'Settings ⚙️';
+
+      const themeDark = document.getElementById('themeDarkBtn');
+      if (themeDark) themeDark.textContent = isAr ? '🌙 داكن' : '🌙 Dark';
+      const themeLight = document.getElementById('themeLightBtn');
+      if (themeLight) themeLight.textContent = isAr ? '☀️ فاتح' : '☀️ Light';
+      const themeAuto = document.getElementById('themeAutoBtn');
+      if (themeAuto) themeAuto.textContent = isAr ? '📱 تلقائي' : '📱 System';
+
+      const checkBtn = document.getElementById('checkUpdatesBtn');
+      if (checkBtn) checkBtn.innerHTML = isAr ? '🔄 فحص التحديثات الآن' : '🔄 Check Updates Now';
+
+      const fbTitle = document.querySelector('#feedbackModal .app-title');
+      if (fbTitle) fbTitle.textContent = isAr ? 'تواصل واقتراحات 💬' : 'Feedback & Support 💬';
+      const fbInput = document.getElementById('fbMessageInput');
+      if (fbInput) fbInput.placeholder = isAr ? 'اكتب تفاصيل اقتراحك أو وصف المشكلة هنا...' : 'Write your thoughts or bug details here...';
+      const fbSendBtn = document.getElementById('sendWhatsAppBtn');
+      if (fbSendBtn) fbSendBtn.innerHTML = isAr ? '<span>إرسال عبر واتساب</span> 💬' : '<span>Send via WhatsApp</span> 💬';
+
+      // Update Fullscreen Badge
+      const inspectBadge = document.getElementById('inspectModeBadge');
+      if (inspectBadge) {
+        if (currentFsMode === 'CLEAN') {
+          inspectBadge.textContent = isAr ? '🧹 نمط التنظيف: اسحب يميناً للاحتفاظ ويساراً للحذف' : '🧹 Clean Mode: Swipe right to keep, left to trash';
+        } else {
+          inspectBadge.textContent = isAr ? '🖼️ نمط المعرض العادي: السحب يقلب الملفات دون حذف' : '🖼️ Gallery Mode: Swiping flips photos without deletion';
+        }
+      }
+
+      // Re-render card with localized text
+      renderCurrentCard();
+      if (trashView && trashView.classList.contains('open')) renderTrashGrid();
+      if (galleryView && galleryView.classList.contains('open')) renderGalleryGrid();
     };
 
     window.setFsMode = function(mode) {

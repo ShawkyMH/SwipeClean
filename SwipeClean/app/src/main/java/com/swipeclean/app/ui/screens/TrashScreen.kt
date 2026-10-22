@@ -28,6 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.swipeclean.app.data.AppLanguage
+import com.swipeclean.app.data.AppStrings
 import com.swipeclean.app.data.MediaItem
 import com.swipeclean.app.data.MediaType
 import com.swipeclean.app.data.TrashSortOrder
@@ -41,6 +43,7 @@ fun TrashScreen(
     trashItems: List<MediaItem>,
     isDeleting: Boolean,
     trashSortOrder: TrashSortOrder,
+    currentLanguage: AppLanguage = AppLanguage.ARABIC,
     onSortOrderChanged: (TrashSortOrder) -> Unit,
     onRestoreItem: (MediaItem) -> Unit,
     onEmptyTrash: () -> Unit,
@@ -57,9 +60,9 @@ fun TrashScreen(
         AlertDialog(
             onDismissRequest = { showConfirmDialog = false },
             icon = { Icon(Icons.Default.DeleteForever, contentDescription = null, tint = DeleteRed, modifier = Modifier.size(36.dp)) },
-            title = { Text("حذف نهائي من الجهاز؟", fontWeight = FontWeight.Bold) },
+            title = { Text(AppStrings.permanentDeleteTitle(currentLanguage), fontWeight = FontWeight.Bold) },
             text = {
-                Text("سيتم حذف ${trashItems.size} ملف بحجم إجمالي (${formatFileSize(totalSize)}) نهائياً من ذاكرة الهاتف. لا يمكن التراجع عن هذا الإجراء.")
+                Text(AppStrings.permanentDeleteMsg(trashItems.size, formatFileSize(totalSize), currentLanguage))
             },
             confirmButton = {
                 Button(
@@ -69,12 +72,12 @@ fun TrashScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = DeleteRed)
                 ) {
-                    Text("حذف الآن")
+                    Text(AppStrings.deleteNow(currentLanguage))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showConfirmDialog = false }) {
-                    Text("إلغاء")
+                    Text(AppStrings.cancel(currentLanguage))
                 }
             }
         )
@@ -85,20 +88,26 @@ fun TrashScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "سلة الحذف (${trashItems.size})",
+                        AppStrings.trashTitle(trashItems.size, currentLanguage),
                         fontWeight = FontWeight.Bold
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "رجوع")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = AppStrings.back(currentLanguage)
+                        )
                     }
                 },
                 actions = {
                     if (trashItems.isNotEmpty()) {
                         Box {
                             IconButton(onClick = { showSortMenu = true }) {
-                                Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "ترتيب السلة")
+                                Icon(
+                                    Icons.AutoMirrored.Filled.Sort,
+                                    contentDescription = AppStrings.sortTrash(currentLanguage)
+                                )
                             }
                             DropdownMenu(
                                 expanded = showSortMenu,
@@ -108,7 +117,7 @@ fun TrashScreen(
                                     DropdownMenuItem(
                                         text = {
                                             Text(
-                                                order.label,
+                                                order.label(currentLanguage),
                                                 fontWeight = if (order == trashSortOrder) FontWeight.Bold else FontWeight.Normal
                                             )
                                         },
@@ -148,7 +157,7 @@ fun TrashScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                "المساحة المحررة:",
+                                if (currentLanguage == AppLanguage.ARABIC) "المساحة المحررة:" else "Space to free:",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -173,7 +182,13 @@ fun TrashScreen(
                             } else {
                                 Icon(Icons.Default.DeleteForever, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("إفراغ السلة وحذف الكل (${trashItems.size})", fontWeight = FontWeight.Bold)
+                                Text(
+                                    if (currentLanguage == AppLanguage.ARABIC)
+                                        "إفراغ السلة وحذف الكل (${trashItems.size})"
+                                    else
+                                        "Empty Trash & Delete All (${trashItems.size})",
+                                    fontWeight = FontWeight.Bold
+                                )
                             }
                         }
                     }
@@ -200,13 +215,13 @@ fun TrashScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        "السلة فارغة",
+                        AppStrings.trashEmptyMsg(currentLanguage),
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        "الصور والفيديوهات التي تسحبها لليسار ستظهر هنا لتراجعها قبل حذفها نهائياً.",
+                        AppStrings.trashEmptyDescription(currentLanguage),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 14.sp
                     )
@@ -227,7 +242,10 @@ fun TrashScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        "الترتيب: ${trashSortOrder.label}",
+                        if (currentLanguage == AppLanguage.ARABIC)
+                            "الترتيب: ${trashSortOrder.label(currentLanguage)}"
+                        else
+                            "Sorting: ${trashSortOrder.label(currentLanguage)}",
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -239,8 +257,9 @@ fun TrashScreen(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(trashItems, key = { it.id }) { item ->
-                        TrashGridItem(
+                        TrashItem(
                             item = item,
+                            currentLanguage = currentLanguage,
                             onRestore = { onRestoreItem(item) }
                         )
                     }
@@ -251,13 +270,15 @@ fun TrashScreen(
 }
 
 @Composable
-fun TrashGridItem(
+fun TrashItem(
     item: MediaItem,
-    onRestore: () -> Unit
+    currentLanguage: AppLanguage = AppLanguage.ARABIC,
+    onRestore: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = Modifier
-            .padding(3.dp)
+        modifier = modifier
+            .padding(2.dp)
             .aspectRatio(1f)
             .clip(RoundedCornerShape(8.dp))
     ) {
@@ -299,7 +320,7 @@ fun TrashGridItem(
         ) {
             Icon(
                 Icons.Default.Restore,
-                contentDescription = "استعادة",
+                contentDescription = AppStrings.restore(currentLanguage),
                 tint = Color.White,
                 modifier = Modifier.size(18.dp)
             )

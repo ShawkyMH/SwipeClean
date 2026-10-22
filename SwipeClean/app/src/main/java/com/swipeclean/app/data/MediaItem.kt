@@ -43,16 +43,20 @@ enum class FilterType(val label: String) {
     VIDEO("🎬 فيديو")
 }
 
-enum class SortOrder(val label: String) {
-    NEWEST_FIRST("الأحدث أولاً 🕒"),
-    OLDEST_FIRST("الأقدم أولاً ⏳"),
-    LARGEST_FIRST("الأكبر حجماً 🚀"),
-    SMALLEST_FIRST("الأصغر حجماً 📦")
+enum class SortOrder(val labelAr: String, val labelEn: String) {
+    NEWEST_FIRST("الأحدث أولاً 🕒", "Newest First 🕒"),
+    OLDEST_FIRST("الأقدم أولاً ⏳", "Oldest First ⏳"),
+    LARGEST_FIRST("الأكبر حجماً 🚀", "Largest First 🚀"),
+    SMALLEST_FIRST("الأصغر حجماً 📦", "Smallest First 📦");
+
+    fun label(lang: AppLanguage): String = if (lang == AppLanguage.ARABIC) labelAr else labelEn
 }
 
-enum class TrashSortOrder(val label: String) {
-    RECENTLY_ADDED("أحدث ما أُضيف للسلة 🕒"),
-    OLDEST_ADDED("أقدم ما أُضيف للسلة ⏳"),
-    LARGEST_SIZE("الأكبر حجماً 🚀"),
-    SMALLEST_SIZE("الأصغر حجماً 📦")
+enum class TrashSortOrder(val labelAr: String, val labelEn: String) {
+    RECENTLY_ADDED("أحدث ما أُضيف للسلة 🕒", "Recently Added 🕒"),
+    OLDEST_ADDED("أقدم ما أُضيف للسلة ⏳", "Oldest Added ⏳"),
+    LARGEST_SIZE("الأكبر حجماً 🚀", "Largest Size 🚀"),
+    SMALLEST_SIZE("الأصغر حجماً 📦", "Smallest Size 📦");
+
+    fun label(lang: AppLanguage): String = if (lang == AppLanguage.ARABIC) labelAr else labelEn
 }

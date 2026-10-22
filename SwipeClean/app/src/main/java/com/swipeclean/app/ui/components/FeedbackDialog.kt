@@ -27,17 +27,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.swipeclean.app.AppConfig
+import com.swipeclean.app.data.AppLanguage
+import com.swipeclean.app.data.AppStrings
 
 private val WhatsAppGreen = Color(0xFF25D366)
 
-enum class FeedbackCategory(val label: String, val emoji: String) {
-    FEATURE("اقتراح ميزة", "💡"),
-    BUG("إبلاغ عن مشكلة", "🐞"),
-    GENERAL("رأي عام أو استفسار", "💬")
+enum class FeedbackCategory(val labelAr: String, val labelEn: String, val emoji: String) {
+    FEATURE("اقتراح ميزة", "Feature Suggestion", "💡"),
+    BUG("إبلاغ عن مشكلة", "Bug Report", "🐞"),
+    GENERAL("رأي عام أو استفسار", "General Feedback", "💬");
+
+    fun label(lang: AppLanguage): String = if (lang == AppLanguage.ARABIC) labelAr else labelEn
 }
 
 @Composable
 fun FeedbackDialog(
+    currentLanguage: AppLanguage = AppLanguage.ARABIC,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
@@ -70,14 +75,14 @@ fun FeedbackDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "إغلاق",
+                            contentDescription = AppStrings.close(currentLanguage),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "تواصل واقتراحات",
+                            text = AppStrings.feedbackTitle(currentLanguage),
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
                         )
@@ -102,7 +107,7 @@ fun FeedbackDialog(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = "رأيك يهمنا جداً! يمكنك إرسال اقتراحاتك لتطوير التطبيق أو الإبلاغ عن أي خطأ مباشرة عبر واتساب.",
+                    text = AppStrings.feedbackSubtitle(currentLanguage),
                     fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -113,7 +118,7 @@ fun FeedbackDialog(
 
                 // Category Selection
                 Text(
-                    text = "نوع الملاحظة:",
+                    text = AppStrings.feedbackType(currentLanguage),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.fillMaxWidth()
@@ -131,7 +136,7 @@ fun FeedbackDialog(
                             onClick = { selectedCategory = category },
                             label = {
                                 Text(
-                                    "${category.emoji} ${category.label}",
+                                    "${category.emoji} ${category.label(currentLanguage)}",
                                     fontSize = 11.sp,
                                     maxLines = 1
                                 )
@@ -149,7 +154,7 @@ fun FeedbackDialog(
                     onValueChange = { messageText = it },
                     placeholder = {
                         Text(
-                            "اكتب تفاصيل اقتراحك أو وصف المشكلة هنا...",
+                            AppStrings.feedbackPlaceholder(currentLanguage),
                             fontSize = 13.sp
                         )
                     },
@@ -169,7 +174,8 @@ fun FeedbackDialog(
                             context = context,
                             phoneNumber = AppConfig.WHATSAPP_NUMBER,
                             category = selectedCategory,
-                            customMessage = messageText
+                            customMessage = messageText,
+                            lang = currentLanguage
                         )
                         onDismiss()
                     },
@@ -186,7 +192,7 @@ fun FeedbackDialog(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "إرسال عبر واتساب",
+                        text = AppStrings.sendViaWhatsApp(currentLanguage),
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp
@@ -196,7 +202,7 @@ fun FeedbackDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "سيتم فتح واتساب تلقائياً مع إرفاق معلومات الجهاز لمساعدتنا في فحص الأخطاء.",
+                    text = AppStrings.whatsAppAutoInfo(currentLanguage),
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                     textAlign = TextAlign.Center
@@ -210,23 +216,40 @@ private fun sendToWhatsApp(
     context: Context,
     phoneNumber: String,
     category: FeedbackCategory,
-    customMessage: String
+    customMessage: String,
+    lang: AppLanguage
 ) {
     val cleanPhone = phoneNumber.replace("+", "").replace(" ", "").trim()
 
-    val deviceInfo = """
+    val isAr = (lang == AppLanguage.ARABIC)
+
+    val deviceInfo = if (isAr) """
         📱 الجهاز: ${Build.MANUFACTURER.replaceFirstChar { it.uppercase() }} ${Build.MODEL}
         ⚙️ إصدار الأندرويد: Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})
         📦 إصدار التطبيق: ${AppConfig.APP_NAME} v${AppConfig.APP_VERSION}
+    """.trimIndent() else """
+        📱 Device: ${Build.MANUFACTURER.replaceFirstChar { it.uppercase() }} ${Build.MODEL}
+        ⚙️ Android OS: Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})
+        📦 App Version: ${AppConfig.APP_NAME} v${AppConfig.APP_VERSION}
     """.trimIndent()
 
     val formattedMessage = buildString {
-        appendLine("👋 مرحباً! لدي رسالة بخصوص تطبيق *${AppConfig.APP_NAME}*:")
-        appendLine()
-        appendLine("📋 *النوع:* ${category.emoji} ${category.label}")
-        if (customMessage.isNotBlank()) {
-            appendLine("📝 *التفاصيل:*")
-            appendLine(customMessage.trim())
+        if (isAr) {
+            appendLine("👋 مرحباً! لدي رسالة بخصوص تطبيق *${AppConfig.APP_NAME}*:")
+            appendLine()
+            appendLine("📋 *النوع:* ${category.emoji} ${category.label(lang)}")
+            if (customMessage.isNotBlank()) {
+                appendLine("📝 *التفاصيل:*")
+                appendLine(customMessage.trim())
+            }
+        } else {
+            appendLine("👋 Hello! I have feedback regarding *${AppConfig.APP_NAME}*:")
+            appendLine()
+            appendLine("📋 *Type:* ${category.emoji} ${category.label(lang)}")
+            if (customMessage.isNotBlank()) {
+                appendLine("📝 *Details:*")
+                appendLine(customMessage.trim())
+            }
         }
         appendLine()
         appendLine("-------------------------")
@@ -248,7 +271,7 @@ private fun sendToWhatsApp(
             val fallbackIntent = Intent(Intent.ACTION_VIEW, uri)
             context.startActivity(fallbackIntent)
         } catch (e2: Exception) {
-            Toast.makeText(context, "لم يتم العثور على تطبيق واتساب", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, AppStrings.whatsAppNotFound(lang), Toast.LENGTH_SHORT).show()
         }
     }
 }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.swipeclean.app.data.AppLanguage
+import com.swipeclean.app.data.AppStrings
 import com.swipeclean.app.data.MediaItem
 import com.swipeclean.app.data.MediaType
 
@@ -30,6 +33,7 @@ import com.swipeclean.app.data.MediaType
 fun GalleryScreen(
     mediaItems: List<MediaItem>,
     isLoading: Boolean,
+    currentLanguage: AppLanguage = AppLanguage.ARABIC,
     onItemClick: (MediaItem) -> Unit,
     onNavigateBack: () -> Unit
 ) {
@@ -38,13 +42,16 @@ fun GalleryScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "المعرض (${mediaItems.size})",
+                        AppStrings.galleryTitle(mediaItems.size, currentLanguage),
                         fontWeight = FontWeight.Bold
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "رجوع")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = AppStrings.back(currentLanguage)
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -80,7 +87,7 @@ fun GalleryScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        "لا توجد صور أو فيديوهات",
+                        AppStrings.noMediaFound(currentLanguage),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

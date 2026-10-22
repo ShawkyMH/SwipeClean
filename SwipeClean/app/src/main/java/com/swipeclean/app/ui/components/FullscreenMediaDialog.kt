@@ -48,6 +48,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.swipeclean.app.data.AppLanguage
+import com.swipeclean.app.data.AppStrings
 import com.swipeclean.app.data.FullscreenSwipeMode
 import com.swipeclean.app.data.MediaItem
 import com.swipeclean.app.data.MediaType
@@ -64,6 +66,7 @@ fun FullscreenMediaDialog(
     mediaItems: List<MediaItem>,
     initialIndex: Int,
     fullscreenSwipeMode: FullscreenSwipeMode,
+    currentLanguage: AppLanguage = AppLanguage.ARABIC,
     onDismiss: () -> Unit,
     onKeepItem: (MediaItem) -> Unit,
     onTrashItem: (MediaItem) -> Unit,
@@ -333,7 +336,7 @@ fun FullscreenMediaDialog(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     Icon(Icons.Default.Check, contentDescription = null, tint = Color.White)
-                                    Text("احتفظ", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                    Text(AppStrings.keep(currentLanguage), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                                 }
                             }
                         }
@@ -356,7 +359,7 @@ fun FullscreenMediaDialog(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
-                                    Text("إلى السلة", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                    Text(AppStrings.trash(currentLanguage), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                                 }
                             }
                         }
@@ -383,7 +386,7 @@ fun FullscreenMediaDialog(
                         onClick = onDismiss,
                         colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Black.copy(alpha = 0.5f))
                     ) {
-                        Icon(Icons.Default.Close, contentDescription = "إغلاق", tint = Color.White)
+                        Icon(Icons.Default.Close, contentDescription = AppStrings.close(currentLanguage), tint = Color.White)
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -396,7 +399,10 @@ fun FullscreenMediaDialog(
                             KeepGreen.copy(alpha = 0.35f)
                     ) {
                         Text(
-                            text = if (fullscreenSwipeMode == FullscreenSwipeMode.BROWSE_ONLY) "معرض تصفح 🖼️" else "وضع تنظيف 🧹",
+                            text = if (fullscreenSwipeMode == FullscreenSwipeMode.BROWSE_ONLY)
+                                AppStrings.browseModeBadge(currentLanguage)
+                            else
+                                AppStrings.cleanModeBadge(currentLanguage),
                             color = Color.White,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
@@ -424,7 +430,7 @@ fun FullscreenMediaDialog(
                             },
                             colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Black.copy(alpha = 0.5f))
                         ) {
-                            Icon(Icons.Default.ZoomOut, contentDescription = "إعادة ضبط", tint = Color.White)
+                            Icon(Icons.Default.ZoomOut, contentDescription = AppStrings.resetZoom(currentLanguage), tint = Color.White)
                         }
                     }
 
@@ -435,7 +441,7 @@ fun FullscreenMediaDialog(
                         ) {
                             Icon(
                                 if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                contentDescription = "تشغيل/إيقاف",
+                                contentDescription = AppStrings.playPause(currentLanguage),
                                 tint = Color.White
                             )
                         }
@@ -448,7 +454,7 @@ fun FullscreenMediaDialog(
                         ) {
                             Icon(
                                 if (isMuted) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
-                                contentDescription = "الصوت",
+                                contentDescription = AppStrings.sound(currentLanguage),
                                 tint = Color.White
                             )
                         }
@@ -545,7 +551,7 @@ fun FullscreenMediaDialog(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "السابق",
+                            contentDescription = AppStrings.previous(currentLanguage),
                             tint = if (activeIndex > 0) Color.White else Color.Gray
                         )
                     }
@@ -564,8 +570,12 @@ fun FullscreenMediaDialog(
                             overflow = TextOverflow.Ellipsis
                         )
                         Spacer(modifier = Modifier.height(2.dp))
+                        val mediaPrefix = if (currentItem.type == MediaType.VIDEO)
+                            AppStrings.videoPrefix(currentLanguage)
+                        else
+                            AppStrings.photoPrefix(currentLanguage)
                         Text(
-                            text = "${if (currentItem.type == MediaType.VIDEO) "🎬 فيديو • " else "📷 صورة • "}${formatFileSize(currentItem.size)}${if (currentItem.storageVolumeName.isNotBlank()) " • 💾 ${currentItem.storageVolumeName}" else ""}",
+                            text = "$mediaPrefix${formatFileSize(currentItem.size)}${if (currentItem.storageVolumeName.isNotBlank()) " • 💾 ${currentItem.storageVolumeName}" else ""}",
                             color = Color.White.copy(alpha = 0.75f),
                             fontSize = 11.sp
                         )
@@ -579,7 +589,7 @@ fun FullscreenMediaDialog(
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = "التالي",
+                            contentDescription = AppStrings.next(currentLanguage),
                             tint = if (activeIndex < mediaItems.size - 1) Color.White else Color.Gray
                         )
                     }

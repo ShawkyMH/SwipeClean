@@ -41,4 +41,69 @@ object AppStrings {
     fun restore(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "استرجاع" else "Restore"
     fun trashEmptyMsg(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "سلة المحذوفات فارغة" else "Trash is empty"
     fun reviewDoneMsg(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "🎉 تم مراجعة كل الملفات!" else "🎉 All files reviewed!"
+
+    // Gallery Screen Strings
+    fun galleryTitle(count: Int, lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "المعرض ($count)" else "Gallery ($count)"
+    fun noMediaFound(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "لا توجد صور أو فيديوهات" else "No photos or videos found"
+    fun back(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "رجوع" else "Back"
+
+    // Trash Screen Strings
+    fun trashTitle(count: Int, lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "سلة الحذف ($count)" else "Trash Bin ($count)"
+    fun permanentDeleteTitle(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "حذف نهائي من الجهاز؟" else "Delete Permanently from Device?"
+    fun permanentDeleteMsg(count: Int, size: String, lang: AppLanguage) = if (lang == AppLanguage.ARABIC)
+        "سيتم حذف $count ملف بحجم إجمالي ($size) نهائياً من ذاكرة الهاتف. لا يمكن التراجع عن هذا الإجراء."
+    else
+        "This will permanently delete $count files ($size) from your device storage. This action cannot be undone."
+    fun deleteNow(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "حذف الآن" else "Delete Now"
+    fun cancel(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "إلغاء" else "Cancel"
+    fun deletingFiles(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "جاري حذف الملفات نهائياً..." else "Permanently deleting files..."
+    fun trashEmptyDescription(lang: AppLanguage) = if (lang == AppLanguage.ARABIC)
+        "الملفات التي تقوم بحذفها من شاشة التنظيف ستظهر هنا لمراجعتها أو حذفها نهائياً."
+    else
+        "Files marked for deletion during review will appear here before permanent deletion."
+    fun emptyTrashWithSize(size: String, lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "إفراغ السلة ($size)" else "Empty Trash ($size)"
+    fun itemsInTrash(count: Int, lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "$count عنصر في السلة" else "$count items in trash"
+    fun trashSize(size: String, lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "حجم السلة: $size" else "Trash size: $size"
+    fun sortTrash(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "ترتيب السلة" else "Sort Trash"
+
+    // Swipe Card Strings
+    fun photoTapToInspect(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "📷 صورة (اضغط ⛶ للمعاينة والتكبير)" else "📷 Photo (Tap ⛶ to inspect & zoom)"
+    fun videoBadge(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "🎬 فيديو" else "🎬 Video"
+
+    // Fullscreen Dialog Strings
+    fun close(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "إغلاق" else "Close"
+    fun resetZoom(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "إعادة ضبط" else "Reset Zoom"
+    fun playPause(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "تشغيل/إيقاف" else "Play/Pause"
+    fun sound(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "الصوت" else "Audio"
+    fun browseModeBadge(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "معرض تصفح 🖼️" else "Browse Gallery 🖼️"
+    fun cleanModeBadge(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "وضع تنظيف 🧹" else "Clean Mode 🧹"
+    fun browseModeHint(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "⛶ اسحب لليسار واليمين للتصفح كمعرض صور" else "⛶ Swipe left or right to browse gallery"
+    fun cleanModeHint(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "⛶ اسحب يميناً للاحتفاظ ويساراً للحذف" else "⛶ Swipe right to keep, left to trash"
+    fun previous(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "السابق" else "Previous"
+    fun next(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "التالي" else "Next"
+    fun videoPrefix(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "🎬 فيديو • " else "🎬 Video • "
+    fun photoPrefix(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "📷 صورة • " else "📷 Photo • "
+
+    // Feedback Dialog Strings
+    fun feedbackTitle(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "تواصل واقتراحات" else "Feedback & Suggestions"
+    fun feedbackSubtitle(lang: AppLanguage) = if (lang == AppLanguage.ARABIC)
+        "يسعدنا سماع اقتراحاتك لتطوير التطبيق أو الإبلاغ عن أي خطأ مباشرة عبر واتساب."
+    else
+        "We would love to hear your suggestions or bug reports directly via WhatsApp."
+    fun feedbackType(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "نوع الملاحظة:" else "Feedback Type:"
+    fun feedbackCategoryFeature(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "اقتراح ميزة" else "Feature Suggestion"
+    fun feedbackCategoryBug(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "إبلاغ عن مشكلة" else "Bug Report"
+    fun feedbackCategoryGeneral(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "رأي عام أو استفسار" else "General Inquiry"
+    fun feedbackDetails(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "تفاصيل رسالتك أو اقتراحك:" else "Details of your message:"
+    fun feedbackPlaceholder(lang: AppLanguage) = if (lang == AppLanguage.ARABIC)
+        "اكتب هنا ما يدور ببالك لمساعدتنا على تحسين التطبيق..."
+    else
+        "Write your thoughts or bug details here to help us improve the app..."
+    fun sendViaWhatsApp(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "إرسال عبر واتساب" else "Send via WhatsApp"
+    fun registeredPhone(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "الرقم المسجل: " else "Registered phone: "
+    fun whatsAppAutoInfo(lang: AppLanguage) = if (lang == AppLanguage.ARABIC)
+        "سيتم فتح واتساب تلقائياً مع إرفاق معلومات الجهاز لمساعدتنا في فحص الأخطاء."
+    else
+        "WhatsApp will open automatically with device info to help us diagnose issues."
+    fun whatsAppNotFound(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "لم يتم العثور على تطبيق واتساب" else "WhatsApp app not found"
 }

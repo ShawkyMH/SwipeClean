@@ -46,6 +46,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.swipeclean.app.data.AppLanguage
+import com.swipeclean.app.data.AppStrings
 import com.swipeclean.app.data.MediaItem
 import com.swipeclean.app.data.MediaType
 import com.swipeclean.app.ui.theme.DeleteRed
@@ -59,6 +61,7 @@ import kotlin.math.roundToInt
 fun SwipeCard(
     mediaItem: MediaItem,
     isPaused: Boolean = false, // True when fullscreen dialog is active to pause background playback and mute
+    currentLanguage: AppLanguage = AppLanguage.ARABIC,
     onSwipeRight: () -> Unit,
     onSwipeLeft: () -> Unit,
     onOpenFullscreen: () -> Unit,
@@ -369,7 +372,7 @@ fun SwipeCard(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
-                                Text("احتفظ", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                                Text(AppStrings.keep(currentLanguage), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                             }
                         }
                     }
@@ -391,7 +394,7 @@ fun SwipeCard(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Icon(Icons.Default.Close, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
-                                Text("إلى السلة", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                                Text(AppStrings.trash(currentLanguage), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                             }
                         }
                     }
@@ -423,7 +426,7 @@ fun SwipeCard(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = if (mediaItem.type == MediaType.VIDEO) "🎬 فيديو" else "📷 صورة (اضغط ⛶ للمعاينة والتكبير)",
+                                text = if (mediaItem.type == MediaType.VIDEO) AppStrings.videoBadge(currentLanguage) else AppStrings.photoTapToInspect(currentLanguage),
                                 color = Color.White.copy(alpha = 0.8f),
                                 fontSize = 12.sp
                             )

@@ -55,7 +55,10 @@ fun SwipeScreen(
     var showFullscreenDialog by remember { mutableStateOf(false) }
 
     if (showFeedbackDialog) {
-        FeedbackDialog(onDismiss = { showFeedbackDialog = false })
+        FeedbackDialog(
+            currentLanguage = currentLanguage,
+            onDismiss = { showFeedbackDialog = false }
+        )
     }
 
     if (showFullscreenDialog && mediaItems.isNotEmpty()) {
@@ -63,6 +66,7 @@ fun SwipeScreen(
             mediaItems = mediaItems,
             initialIndex = currentIndex,
             fullscreenSwipeMode = fullscreenSwipeMode,
+            currentLanguage = currentLanguage,
             onDismiss = { showFullscreenDialog = false },
             onKeepItem = onKeepItem,
             onTrashItem = onTrashItem,
@@ -110,7 +114,7 @@ fun SwipeScreen(
                                 DropdownMenuItem(
                                     text = {
                                         Text(
-                                            order.label,
+                                            order.label(currentLanguage),
                                             fontWeight = if (order == sortOrder) FontWeight.Bold else FontWeight.Normal
                                         )
                                     },
@@ -394,6 +398,7 @@ fun SwipeScreen(
                             SwipeCard(
                                 mediaItem = currentItem,
                                 isPaused = showFullscreenDialog, // Pause background video when fullscreen dialog is open to prevent duplicate audio
+                                currentLanguage = currentLanguage,
                                 onSwipeRight = onSwipeRight,
                                 onSwipeLeft = onSwipeLeft,
                                 onOpenFullscreen = { showFullscreenDialog = true },

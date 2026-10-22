@@ -350,6 +350,7 @@ fun SwipeCleanApp(viewModel: MediaViewModel = viewModel()) {
                         GalleryScreen(
                             mediaItems = filteredItems,
                             isLoading = isLoading,
+                            currentLanguage = language,
                             onItemClick = { item ->
                                 viewModel.selectItemAndStartFrom(item)
                                 navController.navigate("swipe") {
@@ -372,6 +373,7 @@ fun SwipeCleanApp(viewModel: MediaViewModel = viewModel()) {
                             trashItems = sortedTrashItems,
                             isDeleting = isDeleting,
                             trashSortOrder = trashSortOrder,
+                            currentLanguage = language,
                             onSortOrderChanged = { viewModel.setTrashSortOrder(it) },
                             onRestoreItem = { viewModel.restoreFromTrash(it) },
                             onEmptyTrash = { viewModel.emptyTrash() },
