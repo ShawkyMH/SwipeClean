@@ -657,12 +657,18 @@
       let topBarHtml = '';
 
       if (item.type === 'VIDEO') {
-        mediaHtml = `<video src="${item.url}" autoplay loop playsinline ${isMuted ? 'muted' : ''}></video>`;
+        mediaHtml = `
+          <video src="${item.url}" loop playsinline ${isMuted ? 'muted' : ''}></video>
+          <!-- Center Play Button: outside card does not play until user clicks -->
+          <div class="card-play-overlay" id="cardPlayOverlay" style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);cursor:pointer;z-index:5;">
+            <div style="width:70px;height:70px;background:rgba(0,0,0,0.75);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,0.6);">▶️</div>
+          </div>
+        `;
         topBarHtml = `
           <div class="top-media-bar">
             <button class="media-btn" id="openInspectBtn" title="معاينة وتكبير الفيديو بملء الشاشة">⛶</button>
             <div style="display:flex;gap:6px;">
-              <button class="media-btn" id="togglePlayBtn" title="إيقاف / تشغيل">⏯️</button>
+              <button class="media-btn" id="togglePlayBtn" title="إيقاف / تشغيل">▶️</button>
               <button class="media-btn ${isMuted ? 'muted' : ''}" id="toggleSoundBtn" title="كتم / تشغيل الصوت">${isMuted ? '🔇' : '🔊'}</button>
             </div>
           </div>
@@ -696,16 +702,42 @@
       // Event listeners for card buttons
       if (item.type === 'VIDEO') {
         const video = card.querySelector('video');
+        const playOverlay = card.querySelector('#cardPlayOverlay');
+        const playBtn = card.querySelector('#togglePlayBtn');
+
+        function toggleCardPlay() {
+          if (video.paused) {
+            video.play().then(() => {
+              if (playOverlay) playOverlay.style.display = 'none';
+              if (playBtn) playBtn.textContent = '⏸️';
+            }).catch(() => {});
+          } else {
+            video.pause();
+            if (playOverlay) playOverlay.style.display = 'flex';
+            if (playBtn) playBtn.textContent = '▶️';
+          }
+        }
+
+        if (playOverlay) {
+          playOverlay.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleCardPlay();
+          });
+        }
+
+        if (playBtn) {
+          playBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleCardPlay();
+          });
+        }
+
         card.querySelector('#toggleSoundBtn').addEventListener('click', (e) => {
           e.stopPropagation();
           isMuted = !isMuted;
           video.muted = isMuted;
           e.target.textContent = isMuted ? '🔇' : '🔊';
           e.target.classList.toggle('muted', isMuted);
-        });
-        card.querySelector('#togglePlayBtn').addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (video.paused) video.play(); else video.pause();
         });
       }
       
@@ -956,11 +988,12 @@
       inspectVideoCurrentTime.textContent = formatVideoSeconds(inspectVideo.currentTime);
     });
 
-    // Scrubbing on the slider
+    // Smooth dragging / scrubbing on the slider: live seek immediately while dragging
     inspectVideoSeekSlider.addEventListener('input', () => {
       isUserSeeking = true;
       if (inspectVideo.duration) {
         const seekTime = (inspectVideoSeekSlider.value / 1000) * inspectVideo.duration;
+        inspectVideo.currentTime = seekTime;
         inspectVideoCurrentTime.textContent = formatVideoSeconds(seekTime);
       }
     });
@@ -970,6 +1003,15 @@
         inspectVideo.currentTime = (inspectVideoSeekSlider.value / 1000) * inspectVideo.duration;
       }
       isUserSeeking = false;
+    });
+
+    // Pause videos when the user switches tabs, minimizes window, or exits
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        inspectVideo.pause();
+        const bgVideos = cardContainer.querySelectorAll('video');
+        bgVideos.forEach(v => v.pause());
+      }
     });
 
     function renderInspectorItem() {

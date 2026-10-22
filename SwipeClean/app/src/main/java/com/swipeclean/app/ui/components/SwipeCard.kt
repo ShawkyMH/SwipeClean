@@ -31,6 +31,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -69,9 +72,9 @@ fun SwipeCard(
     var isSwipingOut by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-    // Video states
+    // Video states: default to NOT playing so outside card video only starts when user taps
     var isMuted by remember(mediaItem.id) { mutableStateOf(false) }
-    var isPlaying by remember(mediaItem.id) { mutableStateOf(true) }
+    var isPlaying by remember(mediaItem.id) { mutableStateOf(false) }
 
     val exoPlayer = remember(mediaItem.id) {
         if (mediaItem.type == MediaType.VIDEO) {
@@ -81,7 +84,7 @@ fun SwipeCard(
                 repeatMode = Player.REPEAT_MODE_ONE
                 volume = 1f
                 prepare()
-                playWhenReady = true
+                playWhenReady = false // Do not autoplay until user taps
             }
         } else null
     }
@@ -89,6 +92,21 @@ fun SwipeCard(
     DisposableEffect(mediaItem.id) {
         onDispose {
             exoPlayer?.release()
+        }
+    }
+
+    // Lifecycle observer: pause ExoPlayer immediately when the user exits or minimizes the app
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, exoPlayer) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE || event == Lifecycle.Event.ON_STOP) {
+                isPlaying = false
+                exoPlayer?.pause()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
@@ -214,20 +232,51 @@ fun SwipeCard(
             Box(modifier = Modifier.fillMaxSize()) {
                 // Media Content (Image or Video)
                 if (mediaItem.type == MediaType.VIDEO && exoPlayer != null) {
-                    AndroidView(
-                        factory = { ctx ->
-                            PlayerView(ctx).apply {
-                                player = exoPlayer
-                                useController = false
-                                layoutParams = FrameLayout.LayoutParams(
-                                    ViewGroup.LayoutParams.MATCH_PARENT,
-                                    ViewGroup.LayoutParams.MATCH_PARENT
-                                )
-                                setOnTouchListener { _, _ -> false }
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        AndroidView(
+                            factory = { ctx ->
+                                PlayerView(ctx).apply {
+                                    player = exoPlayer
+                                    useController = false
+                                    layoutParams = FrameLayout.LayoutParams(
+                                        ViewGroup.LayoutParams.MATCH_PARENT,
+                                        ViewGroup.LayoutParams.MATCH_PARENT
+                                    )
+                                    setOnTouchListener { _, _ -> false }
+                                }
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+
+                        // Center Play Button Overlay: outside video does not play until user explicitly taps it
+                        if (!isPlaying) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Black.copy(alpha = 0.35f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = Color.Black.copy(alpha = 0.75f),
+                                    shadowElevation = 8.dp,
+                                    modifier = Modifier.size(76.dp)
+                                ) {
+                                    IconButton(
+                                        onClick = { isPlaying = true },
+                                        modifier = Modifier.fillMaxSize()
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.PlayArrow,
+                                            contentDescription = "تشغيل الفيديو",
+                                            tint = Color.White,
+                                            modifier = Modifier.size(46.dp)
+                                        )
+                                    }
+                                }
                             }
-                        },
-                        modifier = Modifier.fillMaxSize()
-                    )
+                        }
+                    }
                 } else {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)

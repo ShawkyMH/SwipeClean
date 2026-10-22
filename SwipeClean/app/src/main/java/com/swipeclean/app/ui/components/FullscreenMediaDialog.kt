@@ -30,6 +30,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
@@ -112,6 +115,21 @@ fun FullscreenMediaDialog(
     DisposableEffect(currentItem.id) {
         onDispose {
             exoPlayer?.release()
+        }
+    }
+
+    // Lifecycle observer: pause ExoPlayer immediately when user minimizes or leaves the app
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, exoPlayer) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE || event == Lifecycle.Event.ON_STOP) {
+                isPlaying = false
+                exoPlayer?.pause()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
@@ -448,6 +466,12 @@ fun FullscreenMediaDialog(
                             colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.95f))
                         )
                     )
+                    .pointerInput(Unit) {
+                        // Consume drag gestures on bottom controls so dragging the slider does NOT conflict with gallery swipe
+                        detectDragGestures { change, _ ->
+                            change.consume()
+                        }
+                    }
                     .padding(bottom = 12.dp)
             ) {
                 // Video Progress Slider and timestamps (Only displayed for videos)
@@ -459,10 +483,12 @@ fun FullscreenMediaDialog(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 2.dp)
+                            .padding(horizontal = 18.dp, vertical = 2.dp)
                     ) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -484,7 +510,9 @@ fun FullscreenMediaDialog(
                             value = sliderProgress,
                             onValueChange = { newProgress ->
                                 isScrubbing = true
-                                scrubPositionMs = (newProgress * totalDuration).toLong()
+                                val targetMs = (newProgress * totalDuration).toLong()
+                                scrubPositionMs = targetMs
+                                exoPlayer.seekTo(targetMs) // Live seek video frames as user drags the slider
                             },
                             onValueChangeFinished = {
                                 exoPlayer.seekTo(scrubPositionMs)
@@ -494,11 +522,9 @@ fun FullscreenMediaDialog(
                             colors = SliderDefaults.colors(
                                 thumbColor = Color(0xFFA855F7),
                                 activeTrackColor = Color(0xFFA855F7),
-                                inactiveTrackColor = Color.White.copy(alpha = 0.25f)
+                                inactiveTrackColor = Color.White.copy(alpha = 0.35f)
                             ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(26.dp)
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
