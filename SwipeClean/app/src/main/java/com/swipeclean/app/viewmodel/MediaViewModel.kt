@@ -11,6 +11,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+import java.io.File
+
 class MediaViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = MediaRepository(application)
@@ -30,6 +32,9 @@ class MediaViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _updateCheckMessage = MutableStateFlow<String?>(null)
     val updateCheckMessage: StateFlow<String?> = _updateCheckMessage.asStateFlow()
+
+    private val _downloadState = MutableStateFlow<DownloadState>(DownloadState.Idle)
+    val downloadState: StateFlow<DownloadState> = _downloadState.asStateFlow()
 
     private val _mediaItems = MutableStateFlow<List<MediaItem>>(emptyList())
     val mediaItems: StateFlow<List<MediaItem>> = _mediaItems.asStateFlow()
@@ -386,8 +391,34 @@ class MediaViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun startDownload(updateInfo: AppUpdateInfo) {
+        viewModelScope.launch {
+            _downloadState.value = DownloadState.Downloading(0f, 0L, 0L)
+            val result = updateManager.downloadApk(
+                apkUrl = updateInfo.downloadUrl,
+                versionName = updateInfo.versionName
+            ) { progress, downloaded, total ->
+                _downloadState.value = DownloadState.Downloading(progress, downloaded, total)
+            }
+            result.onSuccess { file ->
+                _downloadState.value = DownloadState.Completed(file)
+            }.onFailure { error ->
+                _downloadState.value = DownloadState.Error(error.localizedMessage ?: "Download failed")
+            }
+        }
+    }
+
+    fun installDownloadedApk(apkFile: File) {
+        updateManager.installApk(apkFile)
+    }
+
+    fun resetDownloadState() {
+        _downloadState.value = DownloadState.Idle
+    }
+
     fun dismissUpdateDialog() {
         _updateInfo.value = null
+        _downloadState.value = DownloadState.Idle
     }
 
     fun clearUpdateMessage() {

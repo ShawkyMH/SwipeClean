@@ -656,8 +656,21 @@
             • تحسين درجات التباين للألوان<br>
             • حل مشكلة الصوت المزدوج للفيديوهات
           </div>
+          <div id="updateDownloadProgressBox" style="display:none;margin-bottom:14px;text-align:center;">
+            <div style="font-size:0.8rem;color:#cbd5e1;margin-bottom:6px;" id="updateProgressText">جاري تحميل التحديث...</div>
+            <div style="width:100%;height:8px;background:#0f172a;border-radius:4px;overflow:hidden;margin-bottom:6px;">
+              <div id="updateProgressBar" style="width:0%;height:100%;background:#a855f7;transition:width 0.2s ease;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:#94a3b8;">
+              <span id="updateProgressPercent">0%</span>
+              <span id="updateProgressBytes">0 MB / 14 MB</span>
+            </div>
+          </div>
           <button id="downloadUpdateBtn" style="width:100%;background:#a855f7;color:#fff;border:none;border-radius:14px;padding:10px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:inherit;margin-bottom:8px;">
-            📥 تحميل التحديث عبر GitHub
+            📥 تحميل التحديث
+          </button>
+          <button id="installUpdateBtn" style="display:none;width:100%;background:#22c55e;color:#fff;border:none;border-radius:14px;padding:10px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:inherit;margin-bottom:8px;">
+            🚀 تثبيت التحديث الآن
           </button>
           <button id="closeUpdateDialogBtn" style="background:none;border:none;color:#94a3b8;font-size:0.8rem;cursor:pointer;font-family:inherit;">
             لاحقاً
@@ -1511,8 +1524,43 @@
       updateDialogModal.style.display = 'none';
     });
 
+    const installUpdateBtn = document.getElementById('installUpdateBtn');
+    const updateProgressBox = document.getElementById('updateDownloadProgressBox');
+    const updateProgressBar = document.getElementById('updateProgressBar');
+    const updateProgressPercent = document.getElementById('updateProgressPercent');
+    const updateProgressBytes = document.getElementById('updateProgressBytes');
+
     downloadUpdateBtn.addEventListener('click', () => {
-      window.open('https://github.com/ShawkyMH/SwipeClean/releases/latest', '_blank');
+      downloadUpdateBtn.style.display = 'none';
+      updateProgressBox.style.display = 'block';
+
+      let currentPercent = 0;
+      const totalMB = 14.0;
+      const interval = setInterval(() => {
+        currentPercent += 5;
+        if (currentPercent > 100) currentPercent = 100;
+        updateProgressBar.style.width = currentPercent + '%';
+        updateProgressPercent.textContent = currentPercent + '%';
+        const currentMB = ((currentPercent / 100) * totalMB).toFixed(1);
+        updateProgressBytes.textContent = `${currentMB} MB / ${totalMB} MB`;
+
+        if (currentPercent >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            updateProgressBox.style.display = 'none';
+            installUpdateBtn.style.display = 'block';
+            document.getElementById('updateDialogTitle').textContent = (currentAppLang === 'ar') ? 'اكتمل التحميل بنجاح! 🎉' : 'Download Complete! 🎉';
+          }, 300);
+        }
+      }, 100);
+    });
+
+    installUpdateBtn.addEventListener('click', () => {
+      alert((currentAppLang === 'ar')
+        ? 'تم تشغيل مثبت الحزم (Package Installer) لتثبيت تحديث SwipeClean v1.1.0!'
+        : 'Package installer launched to install SwipeClean v1.1.0 update!'
+      );
+      window.open('https://github.com/ShawkyMH/SwipeClean/releases/latest/download/SwipeClean.apk', '_blank');
       updateDialogModal.style.display = 'none';
     });
 

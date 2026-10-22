@@ -98,15 +98,19 @@ fun SwipeCleanApp(viewModel: MediaViewModel = viewModel()) {
     val updateInfo by viewModel.updateInfo.collectAsState()
     val isCheckingUpdate by viewModel.isCheckingUpdate.collectAsState()
     val updateCheckMessage by viewModel.updateCheckMessage.collectAsState()
+    val downloadState by viewModel.downloadState.collectAsState()
     val context = LocalContext.current
 
     // Display In-App Update Dialog when update is found
     if (updateInfo != null) {
         UpdateDialog(
             updateInfo = updateInfo!!,
+            downloadState = downloadState,
             currentLanguage = language,
             onDismiss = { viewModel.dismissUpdateDialog() },
-            onUpdateClick = { url ->
+            onDownloadClick = { info -> viewModel.startDownload(info) },
+            onInstallClick = { file -> viewModel.installDownloadedApk(file) },
+            onOpenBrowserFallback = { url ->
                 try {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                     context.startActivity(intent)

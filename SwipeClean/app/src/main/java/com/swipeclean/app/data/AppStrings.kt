@@ -106,4 +106,21 @@ object AppStrings {
     else
         "WhatsApp will open automatically with device info to help us diagnose issues."
     fun whatsAppNotFound(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "لم يتم العثور على تطبيق واتساب" else "WhatsApp app not found"
+
+    // Update Dialog Strings
+    fun downloadUpdate(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "تحميل التحديث" else "Download Update"
+    fun downloadingUpdate(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "جاري تحميل التحديث..." else "Downloading update..."
+    fun downloadComplete(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "اكتمل التحميل بنجاح!" else "Download Complete!"
+    fun downloadReadyToInstall(lang: AppLanguage) = if (lang == AppLanguage.ARABIC)
+        "الملف جاهز للتثبيت. اضغط على الزر أدناه لبدء التحديث."
+    else
+        "The update is downloaded and ready to install. Tap below to begin."
+    fun installUpdate(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "تثبيت التحديث الآن 🚀" else "Install Update Now 🚀"
+    fun downloadError(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "فشل التحميل. يرجى إعادة المحاولة." else "Download failed. Please try again."
+    fun retry(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "إعادة المحاولة" else "Retry"
+    fun downloadViaBrowser(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "تحميل عبر المتصفح" else "Download via Browser"
+    fun allowInstallPermission(lang: AppLanguage) = if (lang == AppLanguage.ARABIC)
+        "يرجى السماح بتثبيت التطبيقات من هذا المصدر في إعدادات الهاتف للمتابعة."
+    else
+        "Please allow installing apps from this source in Settings to proceed."
 }

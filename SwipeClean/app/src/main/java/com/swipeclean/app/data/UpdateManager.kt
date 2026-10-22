@@ -7,14 +7,25 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.core.app.NotificationCompat
+import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.BufferedReader
+import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+
+sealed class DownloadState {
+    object Idle : DownloadState()
+    data class Downloading(val progress: Float, val downloadedBytes: Long, val totalBytes: Long) : DownloadState()
+    data class Completed(val apkFile: File) : DownloadState()
+    data class Error(val message: String) : DownloadState()
+}
 
 class UpdateManager(private val context: Context) {
 
@@ -88,7 +99,7 @@ class UpdateManager(private val context: Context) {
                                 titleEn = json.optString("titleEn", "New Update Available 🚀"),
                                 changelogAr = json.optString("changelogAr", ""),
                                 changelogEn = json.optString("changelogEn", ""),
-                                downloadUrl = json.optString("downloadUrl", "https://github.com/ShawkyMH/SwipeClean/releases/latest")
+                                downloadUrl = json.optString("downloadUrl", "https://github.com/ShawkyMH/SwipeClean/releases/latest/download/SwipeClean.apk")
                             )
                             return@withContext Result.success(updateInfo)
                         } else {
@@ -99,7 +110,7 @@ class UpdateManager(private val context: Context) {
                         val tagName = json.optString("tag_name", "").removePrefix("v")
                         val currentVersionName = getInstalledVersionName().removePrefix("v")
 
-                        var downloadUrl = "https://github.com/ShawkyMH/SwipeClean/releases/latest"
+                        var downloadUrl = "https://github.com/ShawkyMH/SwipeClean/releases/latest/download/SwipeClean.apk"
                         val assetsArray = json.optJSONArray("assets")
                         if (assetsArray != null) {
                             for (i in 0 until assetsArray.length()) {
@@ -154,6 +165,101 @@ class UpdateManager(private val context: Context) {
             }
         } catch (_: Exception) {}
         return false
+    }
+
+    suspend fun downloadApk(
+        apkUrl: String,
+        versionName: String,
+        onProgress: (Float, Long, Long) -> Unit
+    ): Result<File> = withContext(Dispatchers.IO) {
+        try {
+            var currentUrl = apkUrl
+            var connection: HttpURLConnection
+            var redirectCount = 0
+
+            while (true) {
+                val url = URL(currentUrl)
+                connection = url.openConnection() as HttpURLConnection
+                connection.connectTimeout = 15000
+                connection.readTimeout = 25000
+                connection.instanceFollowRedirects = true
+                connection.setRequestProperty("User-Agent", "SwipeClean-Android")
+                connection.setRequestProperty("Accept", "application/vnd.android.package-archive, application/octet-stream, */*")
+
+                val responseCode = connection.responseCode
+                if (responseCode in listOf(301, 302, 303, 307, 308)) {
+                    val newLocation = connection.getHeaderField("Location")
+                    connection.disconnect()
+                    if (newLocation != null && redirectCount < 6) {
+                        currentUrl = newLocation
+                        redirectCount++
+                        continue
+                    }
+                }
+                if (responseCode != HttpURLConnection.HTTP_OK) {
+                    connection.disconnect()
+                    return@withContext Result.failure(Exception("HTTP $responseCode from download server"))
+                }
+                break
+            }
+
+            val totalLength = connection.contentLengthLong
+            val storageDir = File(context.cacheDir, "updates").apply { mkdirs() }
+            val destinationFile = File(storageDir, "SwipeClean_v${versionName}.apk")
+            if (destinationFile.exists()) destinationFile.delete()
+
+            connection.inputStream.use { input ->
+                FileOutputStream(destinationFile).use { output ->
+                    val buffer = ByteArray(16384)
+                    var bytesRead: Int
+                    var totalBytesRead = 0L
+
+                    while (input.read(buffer).also { bytesRead = it } != -1) {
+                        output.write(buffer, 0, bytesRead)
+                        totalBytesRead += bytesRead
+                        val progress = if (totalLength > 0L) totalBytesRead.toFloat() / totalLength.toFloat() else 0f
+                        onProgress(progress, totalBytesRead, totalLength)
+                    }
+                    output.flush()
+                }
+            }
+            connection.disconnect()
+            Result.success(destinationFile)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    fun installApk(apkFile: File): Boolean {
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!context.packageManager.canRequestPackageInstalls()) {
+                    val settingsIntent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                        data = Uri.parse("package:${context.packageName}")
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    context.startActivity(settingsIntent)
+                    return false
+                }
+            }
+
+            val contentUri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                apkFile
+            )
+
+            val installIntent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(contentUri, "application/vnd.android.package-archive")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(installIntent)
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
     }
 
     fun showUpdateNotification(updateInfo: AppUpdateInfo, lang: AppLanguage) {
