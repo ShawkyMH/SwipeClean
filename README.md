@@ -1,119 +1,157 @@
+# ✨ SwipeClean
+
 <div align="center">
 
-# ✨ SwipeClean | سوايپ كلين
-### Modern, Intelligent Android Photo & Video Decluttering App
-### تطبيق أندرويد عصري وذكي لتنظيف الصور والفيديوهات بأسلوب السحب التفاعلي
+### Modern, High-Performance Android Photo & Video Decluttering App
+*Clean your camera roll effortlessly with fluid swipe gestures, Apple HIG-inspired design, and comprehensive bilingual support.*
 
-[![Android](https://img.shields.io/badge/Platform-Android%208.0%2B%20(API%2026--34)-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://android.com)
+[![Release](https://img.shields.io/badge/Release-v1.1.0-blueviolet?style=for-the-badge&logo=github)](https://github.com/ShawkyMH/SwipeClean/releases/latest)
+[![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B%20(API%2026--34)-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.22-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 [![Apple HIG](https://img.shields.io/badge/Design-Apple%20HIG%20Audited-000000?style=for-the-badge&logo=apple&logoColor=white)](https://developer.apple.com/design/human-interface-guidelines)
-[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
-
-<br/>
-
-<p align="center">
-  <b>عربي</b> | <a href="#english">English</a>
-</p>
+[![License](https://img.shields.io/badge/License-MIT-success?style=for-the-badge)](LICENSE)
 
 </div>
 
 ---
 
-## 📱 نبذة عن التطبيق (Overview)
+## 📱 Overview
 
-**SwipeClean** هو تطبيق أندرويد متطور مبني بأحدث تقنيات **Jetpack Compose** و **Material 3**، مصمم لمساعدتك على فحص وتنظيم معرض الصور والفيديوهات بسهولة وسرعة فائقة من خلال إيماءات السحب التفاعلية المستوحاة من معايير تصميم **Apple Human Interface Guidelines (HIG)**.
+**SwipeClean** is a modern, responsive Android utility built from the ground up using **Kotlin**, **Jetpack Compose**, and **Material Design 3**. It makes organizing your overflowing photo and video gallery fast, safe, and intuitive through fluid swipe gestures audited against **Apple Human Interface Guidelines (HIG)** standards.
 
-- 👈 **سحب لليسار:** نقل العنصر فوراً إلى سلة المحذوفات داخل التطبيق دون حذفه نهائياً مباشرة، مع إمكانية التراجع.
-- 👉 **سحب لليمين:** الاحتفاظ بالصورة أو الفيديو وتخطيها للعنصر التالي.
-- 🗑️ **سلة محذوفات ذكية (In-App Trash Bin):** مراجعة جميع الملفات التي اخترت حذفها، ترتيبها حسب الحجم أو التاريخ، واسترجاع أي عنصر بنقرة واحدة، أو تأكيد الحذف النهائي من ذاكرة الجهاز.
-
----
-
-## 🌟 أبرز المميزات (Key Features)
-
-- 🎴 **شريط تنقل سفلي عصري (Apple HIG Bottom Tab Bar):**
-  تنقل سلس بيد واحدة بين شاشة التنظيف (Clean Deck)، المعرض الكامل (Gallery Grid)، وسلة المحذوفات (Trash Bin).
-- 🎬 **مشغل فيديو احترافي (ExoPlayer & Media3):**
-  معاينة الفيديوهات مع شريط تمرير زمني تفاعلي (Live Scrubber Slider) للتحكم الدقيق بالثواني، كتم/تشغيل الصوت، وإيقاف تلقائي في الخلفية عند الخروج لمنع تكرار الصوت أو استنزاف البطارية.
-- 🔍 **فحص كامل للشاشة وتكبير باللمس (Zoom & Pan Modal):**
-  معاينة الصور والفيديوهات بوضوح فائق (Ultra-HD)، مع إمكانية التكبير حتى 220% بالضغط المزدوج أو إيماءات اللمس، ودعم التصفح كمعرض صور قياسي أثناء التكبير.
-- 💾 **التعرف على جميع وسائط التخزين المتصلة:**
-  كشف وتصنيف ذكي للملفات بين: ذاكرة الهاتف الداخلية (Internal Storage)، بطاقات الذاكرة (SD Cards)، ووحدات التخزين الخارجية (USB OTG / Hard Drives).
-- 🌐 **دعم كامل للغتين (Arabic & English):**
-  واجهة مخصصة بالكامل باللغتين مع دعم مثالي للاتجاهين (RTL & LTR).
-- 🎨 **سمات وألوان متعددة (Dark & Light & Dynamic Color):**
-  دعم الثيم الداكن والفاتح ومطابقة ثيم النظام، مع تباين لوني معتمد وفق معايير الوصول العالمية (**WCAG AA ≥ 4.5:1**).
-- 🚀 **نظام تحديثات تلقائي متصل بـ GitHub (In-App GitHub Updates):**
-  فحص ذكي في الخلفية لأحدث الإصدارات وإشعار المستخدم بالتغييرات مع رابط تحميل مباشر وموثوق.
-- 💬 **دعم وملاحظات سريعة عبر واتساب:**
-  إمكانية إرسال المقترحات والتبليغ عن الأخطاء بنقرة واحدة مباشرة للمطور.
+Unlike ordinary gallery cleaners that delete files immediately or require tedious checkboxes, SwipeClean introduces a safe **In-App Trash Bin** staging mechanism:
+- 👈 **Swipe Left:** Send item to the in-app Trash Bin (staged for deletion, fully reversible at any time).
+- 👉 **Swipe Right:** Keep the photo or video and advance to the next item.
+- 🗑️ **Review & Confirm:** Inspect staged files in the Trash Bin, sort them by file size or date, restore with a single tap, or perform a permanent batch deletion with Android scoped storage safety.
 
 ---
 
-## 🛠️ البنية التقنية (Tech Stack & Architecture)
+## 🌟 Key Features
 
-- **Language:** Kotlin 100%
-- **UI Framework:** Jetpack Compose (BOM 2024.02.00)
-- **Design System:** Material Design 3 + Apple HIG principles
-- **Architecture:** MVVM (Model-View-ViewModel) + Unidirectional Data Flow
-- **Reactive State:** Kotlin Coroutines & StateFlow / SharedFlow
+### 1. 🎴 Ergonomic Gestures & Apple HIG Navigation
+- **Fluid Swipe Deck:** Interactive cards with velocity physics, dynamic tilt angle, and color-coded action badges (Green for Keep, Red for Trash).
+- **Persistent Bottom Navigation Bar:** Clean one-handed switching between **Clean Deck**, **Gallery Grid**, and **Trash Bin**, with live badge counters.
+
+### 2. 🎬 Advanced Video Player with Live Scrubbing
+- **AndroidX Media3 ExoPlayer Engine:** Fast, hardware-accelerated playback for MP4, MKV, WebM, and 3GP formats.
+- **Interactive Scrubber Slider:** Draggable progress slider for instant frame scrubbing and precise second-by-second navigation.
+- **Audio Control & Lifecycle Safety:** Quick mute/unmute toggle, and automatic background pausing when minimizing the app or switching screens to eliminate audio overlap and battery drain.
+
+### 3. 🔍 Fullscreen Inspection with Zoom & Pan
+- **Ultra-HD Inspection:** Double-tap or pinch-to-zoom up to 220% on any image or video.
+- **Configurable Fullscreen Behavior:** Choose between standard gallery flipping (Browse Mode) or active swiping (Clean Mode) while in fullscreen inspection.
+
+### 4. 💾 Multi-Storage Drive Discovery
+- Intelligently discovers and categorizes media items across:
+  - 📱 **Internal Device Storage**
+  - 💾 **External MicroSD Cards**
+  - 🔌 **Removable USB OTG Flash Drives & External SSDs**
+- Filter and sort by storage source with item counts per volume.
+
+### 5. 🌐 100% Comprehensive Bilingual Localization
+- Native, grammatically precise translations in both **English** and **Arabic**.
+- Complete bidirectional layout support (**LTR** for English and **RTL** for Arabic), covering all buttons, menus, dialogs, badges, and system messages.
+
+### 6. 🎨 Material 3 Theming & Accessibility (WCAG AA)
+- Seamless support for **Dark Mode**, **Light Mode**, and **System Default**.
+- Audited color contrast ratios conforming to **WCAG AA (≥ 4.5:1)** for optimal daylight and low-light legibility.
+
+### 7. 🚀 Built-In GitHub Update Checker
+- Background update checking against official GitHub Releases.
+- Shows change logs and provides a direct, one-click download for new versions.
+
+### 8. 💬 Direct Developer Support via WhatsApp
+- Send bug reports or feature requests directly to the developer with automated device metadata (device model, Android version, app build).
+
+---
+
+## 🛠️ Architecture & Tech Stack
+
+```
+SwipeClean/
+├── app/
+│   ├── src/main/java/com/swipeclean/app/
+│   │   ├── data/            # MediaItem, Repository, AppStrings, Enums
+│   │   ├── ui/
+│   │   │   ├── components/  # SwipeCard, FullscreenDialog, FeedbackDialog, UpdateDialog
+│   │   │   ├── screens/     # SwipeScreen, GalleryScreen, TrashScreen, SettingsScreen
+│   │   │   └── theme/       # Color, Theme, Type (Material 3)
+│   │   ├── viewmodel/       # MediaViewModel (Coroutines, StateFlow, MediaStore API)
+│   │   ├── MainActivity.kt  # Compose Entry Point & Navigation Graph
+│   │   └── AppConfig.kt     # App metadata and version constants
+```
+
+- **Architecture:** Unidirectional Data Flow (UDF) + Model-View-ViewModel (MVVM)
+- **UI Framework:** Jetpack Compose (BOM 2024.02.00) + Material 3
+- **Async & Reactive:** Kotlin Coroutines + `StateFlow` / `SharedFlow`
+- **Image Pipeline:** Coil 2.5.0 + Video Frame Decoder
 - **Media Engine:** AndroidX Media3 ExoPlayer 1.2.1
-- **Image Loading:** Coil 2.5.0 (with Video Frame Decoder)
-- **Storage Layer:** Android MediaStore API (Android 8 to Android 14+ compatible)
-- **Minimum SDK:** Android 8.0 (API 26)
-- **Target SDK:** Android 14 (API 34)
+- **Storage Layer:** Android MediaStore ContentResolver API (Scoped Storage compliant)
+- **Minimum SDK:** Android 8.0 (API Level 26)
+- **Target SDK:** Android 14 (API Level 34)
 
 ---
 
-<div id="english"></div>
+## 📥 Download & Installation
 
-## 🇬🇧 English Overview
+You can download the latest signed release APK directly from GitHub:
 
-**SwipeClean** is a high-performance Android gallery cleaner and manager built with modern **Jetpack Compose** and **Material 3**. It makes organizing your camera roll effortless using intuitive swipe gestures:
+👉 **[Download SwipeClean v1.1.0 APK](https://github.com/ShawkyMH/SwipeClean/releases/latest/download/SwipeClean.apk)**
 
-- 👈 **Swipe Left:** Mark for trash (with undo support).
-- 👉 **Swipe Right:** Keep and proceed to the next item.
-- 🗑️ **Trash Bin:** Review marked items, sort by size or date, restore with a tap, or permanently empty.
-- 🚀 **GitHub In-App Updates:** Check and download updates directly from GitHub Releases.
-- 🎨 **WCAG AA Accessible:** Designed with high contrast ratios, responsive layouts, and Apple HIG polish.
-
----
-
-## 📥 التحميل والتثبيت (Download & Installation)
-
-يمكنك تحميل أحدث نسخة جاهزة بصيغة APK مباشرة من قسم [Releases](https://github.com/ShawkyMH/SwipeClean/releases):
-
-1. حمّل ملف `SwipeClean.apk`.
-2. ثبّت التطبيق على هاتفك واسمح بالأذونات لعرض الصور ومقاطع الفيديو.
+### Installation Steps:
+1. Download the `SwipeClean.apk` file on your Android device.
+2. Open the file and enable **Allow from this source** if prompted by Android.
+3. Grant photos and videos media access permissions when launched.
 
 ---
 
-## 🏗️ بناء المشروع من المصدر (Build from Source)
+## 🏗️ Building from Source
 
+### Prerequisites:
+- JDK 17 or higher
+- Android SDK 34 (API Level 34)
+- Android Studio Iguana (2023.2.1) or newer / Gradle CLI
+
+### Build Commands:
 ```bash
 # Clone the repository
 git clone https://github.com/ShawkyMH/SwipeClean.git
 cd SwipeClean
 
-# Build Debug APK
+# Build debug APK
 cd SwipeClean
 ./gradlew assembleDebug
 
-# Build Signed Release APK
+# Build signed release APK
 ./gradlew assembleRelease
 ```
+The output APK will be located at:
+`SwipeClean/app/build/outputs/apk/release/app-release.apk`
 
 ---
 
-## 👤 المطور (Author)
+## 🔒 Permissions & Privacy
+
+SwipeClean operates **100% locally on your device**. None of your photos, videos, or personal data are ever uploaded to any external server or third-party service.
+
+| Permission | Purpose |
+| :--- | :--- |
+| `READ_MEDIA_IMAGES` | Access and display gallery photos on Android 13+ |
+| `READ_MEDIA_VIDEO` | Access and play gallery videos on Android 13+ |
+| `READ_EXTERNAL_STORAGE` | Backward-compatible access on Android 8.0 - 12 |
+| `INTERNET` | Optional; only used for checking GitHub updates and WhatsApp contact |
+
+---
+
+## 👤 Author
 
 - **ShawkyMH**
-- 📧 Email: [royred222@gamil.com](mailto:royred222@gamil.com)
-- 🐙 GitHub: [@ShawkyMH](https://github.com/ShawkyMH)
+- **Email:** [royred222@gamil.com](mailto:royred222@gamil.com)
+- **GitHub:** [@ShawkyMH](https://github.com/ShawkyMH)
 
 ---
 
-## 📄 الترخيص (License)
+## 📄 License
 
-هذا المشروع مرخص تحت رخصة [MIT License](LICENSE).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
