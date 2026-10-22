@@ -12,11 +12,15 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.ViewCarousel
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -25,13 +29,16 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.swipeclean.app.data.AppLanguage
+import com.swipeclean.app.data.AppStrings
 import com.swipeclean.app.data.AppTheme
 import com.swipeclean.app.ui.screens.GalleryScreen
 import com.swipeclean.app.ui.screens.SettingsScreen
 import com.swipeclean.app.ui.screens.SwipeScreen
 import com.swipeclean.app.ui.screens.TrashScreen
+import com.swipeclean.app.ui.theme.DeleteRed
 import com.swipeclean.app.ui.theme.SwipeCleanTheme
 import com.swipeclean.app.viewmodel.MediaViewModel
 
@@ -190,72 +197,181 @@ fun SwipeCleanApp(viewModel: MediaViewModel = viewModel()) {
             }
         }
     } else {
-        NavHost(
-            navController = navController,
-            startDestination = "swipe"
-        ) {
-            composable("swipe") {
-                SwipeScreen(
-                    mediaItems = filteredItems,
-                    currentIndex = currentIndex,
-                    trashCount = trashItems.size,
-                    keptCount = keptCount,
-                    isLoading = isLoading,
-                    filterType = filterType,
-                    selectedFolder = selectedFolder,
-                    availableFolders = availableFolders,
-                    sortOrder = sortOrder,
-                    selectedStorageType = selectedStorageType,
-                    availableStorageTypes = availableStorageTypes,
-                    currentLanguage = language,
-                    fullscreenSwipeMode = fullscreenSwipeMode,
-                    onSwipeRight = { viewModel.keepCurrentItem() },
-                    onSwipeLeft = { viewModel.moveCurrentItemToTrash() },
-                    onKeepItem = { viewModel.keepItem(it) },
-                    onTrashItem = { viewModel.moveItemToTrash(it) },
-                    onIndexChanged = { viewModel.updateCurrentIndex(it) },
-                    onNavigateToGallery = { navController.navigate("gallery") },
-                    onNavigateToTrash = { navController.navigate("trash") },
-                    onNavigateToSettings = { navController.navigate("settings") },
-                    onFilterTypeChanged = { viewModel.setFilterType(it) },
-                    onStorageTypeChanged = { viewModel.setSelectedStorageType(it) },
-                    onFolderSelected = { viewModel.setSelectedFolder(it) },
-                    onSortOrderChanged = { viewModel.setSortOrder(it) }
-                )
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry?.destination?.route ?: "swipe"
+        val showBottomBar = currentRoute in listOf("swipe", "gallery", "trash")
+
+        Scaffold(
+            bottomBar = {
+                if (showBottomBar) {
+                    NavigationBar(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        tonalElevation = 6.dp
+                    ) {
+                        // Tab 1: Clean (تنظيف)
+                        NavigationBarItem(
+                            selected = currentRoute == "swipe",
+                            onClick = {
+                                if (currentRoute != "swipe") {
+                                    navController.navigate("swipe") {
+                                        popUpTo("swipe") { inclusive = false }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            },
+                            icon = {
+                                Icon(
+                                    Icons.Default.ViewCarousel,
+                                    contentDescription = AppStrings.clean(language)
+                                )
+                            },
+                            label = { Text(AppStrings.clean(language)) }
+                        )
+
+                        // Tab 2: Gallery (المعرض)
+                        NavigationBarItem(
+                            selected = currentRoute == "gallery",
+                            onClick = {
+                                if (currentRoute != "gallery") {
+                                    navController.navigate("gallery") {
+                                        popUpTo("swipe") { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
+                            },
+                            icon = {
+                                Icon(
+                                    Icons.Default.GridView,
+                                    contentDescription = AppStrings.gallery(language)
+                                )
+                            },
+                            label = { Text(AppStrings.gallery(language)) }
+                        )
+
+                        // Tab 3: Trash (السلة)
+                        NavigationBarItem(
+                            selected = currentRoute == "trash",
+                            onClick = {
+                                if (currentRoute != "trash") {
+                                    navController.navigate("trash") {
+                                        popUpTo("swipe") { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
+                            },
+                            icon = {
+                                BadgedBox(
+                                    badge = {
+                                        if (trashItems.isNotEmpty()) {
+                                            Badge(
+                                                containerColor = DeleteRed,
+                                                contentColor = Color.White
+                                            ) {
+                                                Text("${trashItems.size}")
+                                            }
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        Icons.Default.DeleteOutline,
+                                        contentDescription = AppStrings.trashTab(language)
+                                    )
+                                }
+                            },
+                            label = { Text(AppStrings.trashTab(language)) }
+                        )
+                    }
+                }
             }
-            composable("gallery") {
-                GalleryScreen(
-                    mediaItems = filteredItems,
-                    isLoading = isLoading,
-                    onItemClick = { item ->
-                        viewModel.selectItemAndStartFrom(item)
-                        navController.popBackStack()
-                    },
-                    onNavigateBack = { navController.popBackStack() }
-                )
-            }
-            composable("trash") {
-                TrashScreen(
-                    trashItems = sortedTrashItems,
-                    isDeleting = isDeleting,
-                    trashSortOrder = trashSortOrder,
-                    onSortOrderChanged = { viewModel.setTrashSortOrder(it) },
-                    onRestoreItem = { viewModel.restoreFromTrash(it) },
-                    onEmptyTrash = { viewModel.emptyTrash() },
-                    onNavigateBack = { navController.popBackStack() }
-                )
-            }
-            composable("settings") {
-                SettingsScreen(
-                    currentLanguage = language,
-                    currentTheme = theme,
-                    currentFullscreenSwipeMode = fullscreenSwipeMode,
-                    availableStorageTypes = availableStorageTypes,
-                    onLanguageChanged = { viewModel.setLanguage(it) },
-                    onThemeChanged = { viewModel.setTheme(it) },
-                    onFullscreenSwipeModeChanged = { viewModel.setFullscreenSwipeMode(it) },
-                    onNavigateBack = { navController.popBackStack() }
-                )
+        ) { innerPadding ->
+            Box(modifier = Modifier.padding(innerPadding)) {
+                NavHost(
+                    navController = navController,
+                    startDestination = "swipe"
+                ) {
+                    composable("swipe") {
+                        SwipeScreen(
+                            mediaItems = filteredItems,
+                            currentIndex = currentIndex,
+                            trashCount = trashItems.size,
+                            keptCount = keptCount,
+                            isLoading = isLoading,
+                            filterType = filterType,
+                            selectedFolder = selectedFolder,
+                            availableFolders = availableFolders,
+                            sortOrder = sortOrder,
+                            selectedStorageType = selectedStorageType,
+                            availableStorageTypes = availableStorageTypes,
+                            currentLanguage = language,
+                            fullscreenSwipeMode = fullscreenSwipeMode,
+                            onSwipeRight = { viewModel.keepCurrentItem() },
+                            onSwipeLeft = { viewModel.moveCurrentItemToTrash() },
+                            onKeepItem = { viewModel.keepItem(it) },
+                            onTrashItem = { viewModel.moveItemToTrash(it) },
+                            onIndexChanged = { viewModel.updateCurrentIndex(it) },
+                            onNavigateToGallery = { navController.navigate("gallery") },
+                            onNavigateToTrash = { navController.navigate("trash") },
+                            onNavigateToSettings = { navController.navigate("settings") },
+                            onFilterTypeChanged = { viewModel.setFilterType(it) },
+                            onStorageTypeChanged = { viewModel.setSelectedStorageType(it) },
+                            onFolderSelected = { viewModel.setSelectedFolder(it) },
+                            onSortOrderChanged = { viewModel.setSortOrder(it) }
+                        )
+                    }
+                    composable("gallery") {
+                        GalleryScreen(
+                            mediaItems = filteredItems,
+                            isLoading = isLoading,
+                            onItemClick = { item ->
+                                viewModel.selectItemAndStartFrom(item)
+                                navController.navigate("swipe") {
+                                    popUpTo("swipe") { inclusive = false }
+                                    launchSingleTop = true
+                                }
+                            },
+                            onNavigateBack = {
+                                if (!navController.popBackStack()) {
+                                    navController.navigate("swipe") {
+                                        popUpTo("swipe") { inclusive = false }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            }
+                        )
+                    }
+                    composable("trash") {
+                        TrashScreen(
+                            trashItems = sortedTrashItems,
+                            isDeleting = isDeleting,
+                            trashSortOrder = trashSortOrder,
+                            onSortOrderChanged = { viewModel.setTrashSortOrder(it) },
+                            onRestoreItem = { viewModel.restoreFromTrash(it) },
+                            onEmptyTrash = { viewModel.emptyTrash() },
+                            onNavigateBack = {
+                                if (!navController.popBackStack()) {
+                                    navController.navigate("swipe") {
+                                        popUpTo("swipe") { inclusive = false }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            }
+                        )
+                    }
+                    composable("settings") {
+                        SettingsScreen(
+                            currentLanguage = language,
+                            currentTheme = theme,
+                            currentFullscreenSwipeMode = fullscreenSwipeMode,
+                            availableStorageTypes = availableStorageTypes,
+                            onLanguageChanged = { viewModel.setLanguage(it) },
+                            onThemeChanged = { viewModel.setTheme(it) },
+                            onFullscreenSwipeModeChanged = { viewModel.setFullscreenSwipeMode(it) },
+                            onNavigateBack = { navController.popBackStack() }
+                        )
+                    }
+                }
             }
         }
     }

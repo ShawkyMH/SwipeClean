@@ -10,6 +10,8 @@ object AppStrings {
     fun inTrash(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "في السلة" else "In Trash"
     fun remaining(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "متبقي" else "Remaining"
 
+    fun clean(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "تنظيف" else "Clean"
+    fun trashTab(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "السلة" else "Trash"
     fun gallery(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "المعرض" else "Gallery"
     fun settings(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "الإعدادات" else "Settings"
     fun feedback(lang: AppLanguage) = if (lang == AppLanguage.ARABIC) "تواصل وملاحظات" else "Feedback & Support"

@@ -125,29 +125,6 @@ fun SwipeScreen(
                             }
                         }
                     }
-
-                    // Trash Bin Action with Badge
-                    IconButton(onClick = onNavigateToTrash) {
-                        BadgedBox(
-                            badge = {
-                                if (trashCount > 0) {
-                                    Badge(
-                                        containerColor = DeleteRed,
-                                        contentColor = Color.White
-                                    ) {
-                                        Text("$trashCount")
-                                    }
-                                }
-                            }
-                        ) {
-                            Icon(Icons.Default.DeleteOutline, contentDescription = AppStrings.trash(currentLanguage))
-                        }
-                    }
-
-                    // Gallery Action
-                    IconButton(onClick = onNavigateToGallery) {
-                        Icon(Icons.Default.GridView, contentDescription = AppStrings.gallery(currentLanguage))
-                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
