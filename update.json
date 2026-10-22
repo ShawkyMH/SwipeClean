@@ -1,10 +1,10 @@
 {
-  "versionCode": 2,
-  "versionName": "1.1.0",
+  "versionCode": 3,
+  "versionName": "1.2.0",
   "isMandatory": false,
-  "titleAr": "تحديث جديد متوفر 🚀",
-  "titleEn": "New Update Available 🚀",
-  "changelogAr": "• إضافة شريط تنقل سفلي جديد (Bottom Navigation Bar) حسب معايير Apple HIG\n• فحص تلقائي للتحديثات عبر GitHub والتثبيت المباشر\n• تحسين درجات التباين للأزرار والشارات (Accessibility WCAG AA)\n• حل مشكلة الصوت المزدوج وإيقاف الفيديوهات بالخلفية تلقائياً\n• سلاسة وتحكم كامل في شريط التمرير الزمني للفيديوهات",
-  "changelogEn": "• New persistent Bottom Navigation Bar following Apple HIG\n• In-app auto-update checker via GitHub\n• Enhanced accessible color contrast (WCAG AA compliant)\n• Fixed dual-audio playback and background pause\n• Live-seek slider dragging and smoother video controls",
+  "titleAr": "تحديث جديد متوفر v1.2.0 🚀",
+  "titleEn": "New Update Available v1.2.0 🚀",
+  "changelogAr": "• تحميل مباشر للـ APK داخل التطبيق دون الحاجة للمتصفح الخارجي\n• شريط تقدم حي يُظهر نسبة التحميل وحجم الملف بالميجابايت لحظة بلحظة\n• زر تثبيت مباشر يفتح مثبت الحزم (Package Installer) فور اكتمال التنزيل\n• تنبيه فوري تلقائي عند فتح التطبيق مع إشعار في شريط الإشعارات عند توفر تحديث\n• دعم كامل لأذونات التثبيت والـ FileProvider المتوافق مع أحدث إصدارات أندرويد",
+  "changelogEn": "• In-app direct APK streaming download without opening external browsers\n• Live interactive download progress bar with percentage and real-time MB counter\n• One-tap install button launching Android's native Package Installer upon download completion\n• Automated startup update dialog and status bar notifications\n• Full Android 14 FileProvider and installation permission compliance",
   "downloadUrl": "https://github.com/ShawkyMH/SwipeClean/releases/latest/download/SwipeClean.apk"
 }

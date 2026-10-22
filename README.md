@@ -5,7 +5,7 @@
 ### Modern, High-Performance Android Photo & Video Decluttering App
 *Clean your camera roll effortlessly with fluid swipe gestures, Apple HIG-inspired design, and comprehensive bilingual support.*
 
-[![Release](https://img.shields.io/badge/Release-v1.1.0-blueviolet?style=for-the-badge&logo=github)](https://github.com/ShawkyMH/SwipeClean/releases/latest)
+[![Release](https://img.shields.io/badge/Release-v1.2.0-blueviolet?style=for-the-badge&logo=github)](https://github.com/ShawkyMH/SwipeClean/releases/latest)
 [![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B%20(API%2026--34)-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://android.com)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.22-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
@@ -57,9 +57,10 @@ Unlike ordinary gallery cleaners that delete files immediately or require tediou
 - Seamless support for **Dark Mode**, **Light Mode**, and **System Default**.
 - Audited color contrast ratios conforming to **WCAG AA (≥ 4.5:1)** for optimal daylight and low-light legibility.
 
-### 7. 🚀 Built-In GitHub Update Checker
-- Background update checking against official GitHub Releases.
-- Shows change logs and provides a direct, one-click download for new versions.
+### 7. 🚀 Built-In GitHub Updates & One-Tap Installer
+- Automated update detection on app startup, background checks, and system tray notifications.
+- **In-App Streaming Download:** Live progress bar with completion percentage and downloaded megabytes.
+- **Direct Package Installer:** Seamlessly launches Android's native installer via secure `FileProvider` upon completion.
 
 ### 8. 💬 Direct Developer Support via WhatsApp
 - Send bug reports or feature requests directly to the developer with automated device metadata (device model, Android version, app build).
@@ -97,10 +98,10 @@ SwipeClean/
 
 You can download the latest signed release APK directly from GitHub:
 
-👉 **[Download SwipeClean v1.1.0 APK](https://github.com/ShawkyMH/SwipeClean/releases/latest/download/SwipeClean.apk)**
+👉 **[Download SwipeClean v1.2.0 APK](https://github.com/ShawkyMH/SwipeClean/releases/latest/download/SwipeClean.apk)**
 
 ### Installation Steps:
-1. Download the `SwipeClean.apk` file on your Android device.
+1. Download the `SwipeClean.apk` file on your Android device (or use the built-in in-app updater).
 2. Open the file and enable **Allow from this source** if prompted by Android.
 3. Grant photos and videos media access permissions when launched.
 
@@ -140,7 +141,9 @@ SwipeClean operates **100% locally on your device**. None of your photos, videos
 | `READ_MEDIA_IMAGES` | Access and display gallery photos on Android 13+ |
 | `READ_MEDIA_VIDEO` | Access and play gallery videos on Android 13+ |
 | `READ_EXTERNAL_STORAGE` | Backward-compatible access on Android 8.0 - 12 |
-| `INTERNET` | Optional; only used for checking GitHub updates and WhatsApp contact |
+| `INTERNET` | Update checks, streaming APK downloads, and WhatsApp contact |
+| `POST_NOTIFICATIONS` | Deliver update alerts on Android 13+ |
+| `REQUEST_INSTALL_PACKAGES` | Directly launch Android Package Installer for downloaded updates |
 
 ---
 

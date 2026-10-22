@@ -7,6 +7,6 @@ object AppConfig {
      */
     const val WHATSAPP_NUMBER = "201002354798"
     const val APP_NAME = "SwipeClean"
-    const val APP_VERSION = "1.1.0"
-    const val APP_VERSION_CODE = 2
+    const val APP_VERSION = "1.2.0"
+    const val APP_VERSION_CODE = 3
 }

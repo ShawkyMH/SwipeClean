@@ -629,7 +629,7 @@
             <div style="font-weight:700;font-size:0.85rem;margin-bottom:8px;color:#a855f7;">🚀 تحديثات التطبيق (GitHub)</div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:0.8rem;color:#cbd5e1;">
               <span>الإصدار المثبت:</span>
-              <span style="background:rgba(168,85,247,0.2);color:#c084fc;font-weight:700;padding:2px 8px;border-radius:8px;">v1.1.0</span>
+              <span style="background:rgba(168,85,247,0.2);color:#c084fc;font-weight:700;padding:2px 8px;border-radius:8px;">v1.2.0</span>
             </div>
             <div id="updateStatusMsg" style="display:none;background:#0f172a;padding:8px 10px;border-radius:8px;font-size:0.75rem;margin-bottom:8px;color:#38bdf8;"></div>
             <div style="display:flex;gap:8px;">
@@ -649,12 +649,12 @@
         <div style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);border-radius:24px;padding:22px;width:100%;max-width:320px;box-shadow:0 20px 40px rgba(0,0,0,0.8);text-align:center;">
           <div style="font-size:2.8rem;margin-bottom:6px;">🚀</div>
           <h3 id="updateDialogTitle" style="font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:4px;">تحديث جديد متوفر!</h3>
-          <div id="updateDialogVer" style="display:inline-block;background:rgba(168,85,247,0.25);color:#c084fc;font-weight:700;font-size:0.75rem;padding:2px 10px;border-radius:12px;margin-bottom:12px;">v1.1.0</div>
+          <div id="updateDialogVer" style="display:inline-block;background:rgba(168,85,247,0.25);color:#c084fc;font-weight:700;font-size:0.75rem;padding:2px 10px;border-radius:12px;margin-bottom:12px;">v1.2.0</div>
           <div style="text-align:right;background:#0f172a;border-radius:12px;padding:12px;font-size:0.75rem;color:#cbd5e1;line-height:1.6;margin-bottom:16px;max-height:140px;overflow-y:auto;" id="updateDialogChangelog">
-            • إضافة شريط تنقل سفلي جديد (Apple HIG)<br>
-            • فحص تلقائي للتحديثات عبر GitHub وتنزيل مباشر<br>
-            • تحسين درجات التباين للألوان<br>
-            • حل مشكلة الصوت المزدوج للفيديوهات
+            • تحميل مباشر للـ APK داخل التطبيق دون فتح المتصفح<br>
+            • شريط تقدم حي يُظهر نسبة التحميل والـ MB لحظة بلحظة<br>
+            • زر تثبيت مباشر يفتح مثبت الحزم (Package Installer)<br>
+            • تنبيه فوري تلقائي في شريط الإشعارات وعند فتح التطبيق
           </div>
           <div id="updateDownloadProgressBox" style="display:none;margin-bottom:14px;text-align:center;">
             <div style="font-size:0.8rem;color:#cbd5e1;margin-bottom:6px;" id="updateProgressText">جاري تحميل التحديث...</div>
@@ -1515,7 +1515,7 @@
           checkUpdatesBtn.disabled = false;
           // Fallback mock update dialog for testing
           document.getElementById('updateDialogTitle').textContent = 'تحديث جديد متوفر 🚀';
-          document.getElementById('updateDialogVer').textContent = 'v1.1.0';
+          document.getElementById('updateDialogVer').textContent = 'v1.2.0';
           updateDialogModal.style.display = 'flex';
         });
     });
@@ -1557,8 +1557,8 @@
 
     installUpdateBtn.addEventListener('click', () => {
       alert((currentAppLang === 'ar')
-        ? 'تم تشغيل مثبت الحزم (Package Installer) لتثبيت تحديث SwipeClean v1.1.0!'
-        : 'Package installer launched to install SwipeClean v1.1.0 update!'
+        ? 'تم تشغيل مثبت الحزم (Package Installer) لتثبيت تحديث SwipeClean v1.2.0!'
+        : 'Package installer launched to install SwipeClean v1.2.0 update!'
       );
       window.open('https://github.com/ShawkyMH/SwipeClean/releases/latest/download/SwipeClean.apk', '_blank');
       updateDialogModal.style.display = 'none';

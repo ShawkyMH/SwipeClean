@@ -93,7 +93,7 @@ class UpdateManager(private val context: Context) {
                         if (remoteVersionCode > currentVersionCode) {
                             val updateInfo = AppUpdateInfo(
                                 versionCode = remoteVersionCode,
-                                versionName = json.optString("versionName", "1.1.0"),
+                                versionName = json.optString("versionName", "1.2.0"),
                                 isMandatory = json.optBoolean("isMandatory", false),
                                 titleAr = json.optString("titleAr", "تحديث جديد متوفر 🚀"),
                                 titleEn = json.optString("titleEn", "New Update Available 🚀"),
